@@ -14,7 +14,8 @@ public final class UriBuilder {
     *  URLs of skytorrents.in. These values are subject to change if the owner
     *  of the service provider makes any changes.
     *  */
-    private static final String BASE_WEBSITE_URL = "https://www.skytorrents.in/top1000/all/";
+    private static final String BASE_WEBSITE_URL = "https://www.skytorrents.in";
+    private static final String BASE_WEBSITE_URL_TOP1000 = "https://www.skytorrents.in/top1000/all/";
     private static final String BASE_WEBSITE_QUERY_URL = "https://www.skytorrents.in/search/all/";
 
     /*
@@ -40,7 +41,7 @@ public final class UriBuilder {
     private static final String QUERY_PARAM = "q";
 
     public static URL buildUrl(SortOrder sortOrder) {
-        String raw_url = BASE_WEBSITE_URL + getSortOrder(sortOrder) + PAGE_NO;
+        String raw_url = BASE_WEBSITE_URL_TOP1000 + getSortOrder(sortOrder) + PAGE_NO;
         Uri builtUri = Uri.parse(raw_url).buildUpon().build();
         URL url = null;
         try {
@@ -57,6 +58,19 @@ public final class UriBuilder {
         Uri builtUri = Uri.parse(raw_url).buildUpon()
                 .appendQueryParameter(QUERY_PARAM,query)
                 .build();
+        URL url = null;
+        try {
+            url = new URL(builtUri.toString());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+
+        return url;
+    }
+
+    public static URL buildInfoUrl(String infoUrl) {
+        String raw_url = BASE_WEBSITE_URL + infoUrl;
+        Uri builtUri = Uri.parse(raw_url).buildUpon().build();
         URL url = null;
         try {
             url = new URL(builtUri.toString());

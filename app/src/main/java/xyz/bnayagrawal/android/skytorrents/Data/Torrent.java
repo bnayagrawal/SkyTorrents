@@ -10,9 +10,9 @@ public class Torrent {
     private String name;
     private String magnetUrl;
     private String detailsUrl;
-    private String fileSize; //We are not parsing so.
+    private String fileSize; //We are not parsing.
+    private String dateAdded; //we are not parsing.
     private int fileCount;
-    private Date dateAdded;
     private int seeds;
     private int peers;
 
@@ -22,7 +22,7 @@ public class Torrent {
             String detailsUrl,
             String fileSize,
             int fileCount,
-            Date dateAdded,
+            String dateAdded,
             int seeds,
             int peers
     ) {
@@ -40,7 +40,7 @@ public class Torrent {
     public String getMagnetUrl() {return this.magnetUrl;}
     public String getDetailsUrl() {return this.detailsUrl;}
     public String getFileSize() {return this.fileSize;}
-    public Date getDateAdded() {return this.dateAdded;}
+    public String getDateAdded() {return this.dateAdded;}
     public int getFileCount() {return this.fileCount;}
     public int getSeeds() {return this.seeds;}
     public int getPeers() {return this.peers;}
