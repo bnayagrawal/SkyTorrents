@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- layout:torrent_list_item -->
+    <dimen name="tli_table_layout_padding">8dp</dimen>
+    <dimen name="tli_image_magnet_margin_left">8dp</dimen>
+    <dimen name="tli_image_magnet_margin_right">16dp</dimen>
+    <dimen name="tli_torrent_name_text_size">16sp</dimen>
+    <dimen name="tli_torrent_desc_text_size">14sp</dimen>
+    <dimen name="tli_torrent_info_text_size">14sp</dimen>
+    <dimen name="tli_torrent_info_margin_right">6dp</dimen>
+
+    <!-- ProgressBar -->
+    <dimen name="act_main_progress_bar_hw">42dp</dimen>
+</resources>

@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/tli_table_layout_padding"
+        android:shrinkColumns="1"
+        android:stretchColumns="1">
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_column="0"
+                android:layout_gravity="center_vertical">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/tli_image_magnet_margin_left"
+                    android:layout_marginRight="@dimen/tli_image_magnet_margin_right"
+                    android:src="@drawable/ic_magnet_36dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_column="1"
+                android:layout_gravity="center_vertical"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Kingsman.The.Golden.Circle.2017.FRENCH.BDRip.XviD-GZR"
+                    android:textColor="@color/colorTorrentName"
+                    android:textSize="@dimen/tli_torrent_name_text_size"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:text="Uploaded 22 Dec 2017, 4 Files"
+                    android:textColor="@color/secondaryText"
+                    android:textSize="@dimen/tli_torrent_desc_text_size"
+                    android:textStyle="bold" />
+
+                <TableLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:stretchColumns="1,3,5">
+
+                    <TableRow
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_column="0"
+                            android:layout_marginRight="@dimen/tli_torrent_info_margin_right"
+                            android:src="@drawable/ic_storage_18dp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_column="1"
+                            android:layout_gravity="center_vertical"
+                            android:layout_marginRight="@dimen/tli_torrent_info_margin_right"
+                            android:text="2.1GB"
+                            android:textColor="@color/blackText"
+                            android:textSize="@dimen/tli_torrent_info_text_size" />
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_column="2"
+                            android:layout_marginRight="@dimen/tli_torrent_info_margin_right"
+                            android:src="@drawable/ic_arrow_up_18dp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_column="3"
+                            android:layout_gravity="center_vertical"
+                            android:layout_marginRight="@dimen/tli_torrent_info_margin_right"
+                            android:text="386 Seeds"
+                            android:textColor="@color/blackText"
+                            android:textSize="@dimen/tli_torrent_info_text_size" />
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_column="4"
+                            android:layout_marginRight="@dimen/tli_torrent_info_margin_right"
+                            android:src="@drawable/ic_arrow_down_18dp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_column="5"
+                            android:layout_gravity="center_vertical"
+                            android:layout_marginRight="@dimen/tli_torrent_info_margin_right"
+                            android:text="48 Peers"
+                            android:textColor="@color/blackText"
+                            android:textSize="@dimen/tli_torrent_info_text_size" />
+                    </TableRow>
+                </TableLayout>
+            </LinearLayout>
+        </TableRow>
+    </TableLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/horizontalLine" />
+</LinearLayout>

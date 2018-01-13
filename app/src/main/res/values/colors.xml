@@ -3,4 +3,11 @@
     <color name="colorPrimary">#00b896</color>
     <color name="colorPrimaryDark">#008f75</color>
     <color name="colorAccent">#e91e63</color>
+
+    <!-- TextColor -->
+    <color name="colorTorrentName">#00498B</color>
+    <color name="secondaryText">#7a7a7a</color>
+    <color name="blackText">#000</color>
+
+    <color name="horizontalLine">#dadada</color>
 </resources>
