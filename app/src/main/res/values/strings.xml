@@ -7,4 +7,9 @@
     <!-- menu:menu_activity_main -->
     <string name="action_sort">Sort</string>
     <string name="action_about">About</string>
+
+    <!-- layout:torrent_list_item -->
+    <string name="file_size">File Size</string>
+    <string name="seeds">Seeds</string>
+    <string name="peers">Peers</string>
 </resources>

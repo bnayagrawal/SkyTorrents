@@ -81,7 +81,7 @@
                             android:layout_column="1"
                             android:layout_gravity="center_vertical"
                             android:layout_marginRight="@dimen/tli_torrent_info_margin_right"
-                            android:text="2.1GB"
+                            android:text="685.2MB"
                             android:textColor="@color/blackText"
                             android:textSize="@dimen/tli_torrent_info_text_size" />
 
@@ -99,7 +99,7 @@
                             android:layout_column="3"
                             android:layout_gravity="center_vertical"
                             android:layout_marginRight="@dimen/tli_torrent_info_margin_right"
-                            android:text="386 Seeds"
+                            android:text="388 Seeds"
                             android:textColor="@color/blackText"
                             android:textSize="@dimen/tli_torrent_info_text_size" />
 
@@ -117,7 +117,7 @@
                             android:layout_column="5"
                             android:layout_gravity="center_vertical"
                             android:layout_marginRight="@dimen/tli_torrent_info_margin_right"
-                            android:text="48 Peers"
+                            android:text="488 Peers"
                             android:textColor="@color/blackText"
                             android:textSize="@dimen/tli_torrent_info_text_size" />
                     </TableRow>

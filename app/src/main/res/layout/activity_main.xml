@@ -9,12 +9,13 @@
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recycler_view_torrents"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:visibility="invisible"/>
 
     <ProgressBar
         android:id="@+id/pb_loading_indicator"
         android:layout_height="@dimen/act_main_progress_bar_hw"
         android:layout_width="@dimen/act_main_progress_bar_hw"
         android:layout_gravity="center"
-        android:visibility="invisible" />
+        android:visibility="visible" />
 </FrameLayout>
