@@ -22,6 +22,7 @@
                 android:layout_gravity="center_vertical">
 
                 <ImageView
+                    android:id="@+id/img_magnet_link"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="@dimen/tli_image_magnet_margin_left"
@@ -37,6 +38,7 @@
                 android:orientation="vertical">
 
                 <TextView
+                    android:id="@+id/tv_torrent_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Kingsman.The.Golden.Circle.2017.FRENCH.BDRip.XviD-GZR"
@@ -45,6 +47,7 @@
                     android:textStyle="bold" />
 
                 <TextView
+                    android:id="@+id/tv_torrent_desc"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:ellipsize="end"
@@ -72,6 +75,7 @@
                             android:src="@drawable/ic_storage_18dp" />
 
                         <TextView
+                            android:id="@+id/tv_torrent_size"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_column="1"
@@ -89,6 +93,7 @@
                             android:src="@drawable/ic_arrow_up_18dp" />
 
                         <TextView
+                            android:id="@+id/tv_torrent_seeds"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_column="3"
@@ -106,6 +111,7 @@
                             android:src="@drawable/ic_arrow_down_18dp" />
 
                         <TextView
+                            android:id="@+id/tv_torrent_peers"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_column="5"
