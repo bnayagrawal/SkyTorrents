@@ -27,6 +27,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import jp.wasabeef.recyclerview.adapters.ScaleInAnimationAdapter;
 import jp.wasabeef.recyclerview.animators.FadeInUpAnimator;
 import xyz.bnayagrawal.android.skytorrents.Data.Page;
 import xyz.bnayagrawal.android.skytorrents.Data.Torrent;
@@ -137,7 +138,8 @@ public class MainActivity extends AppCompatActivity implements HtmlParser.Listen
                 false);
         adapter = new TRAdapter(MainActivity.this,torrents);
 
-        /* Set Animation */
+        //TODO: FIX APP CRASH DUE TO SOME ANIMATION
+        /* Set Animation (sometimes causing inconsistency errors)*/
         FadeInUpAnimator animator = new FadeInUpAnimator();
         animator.setAddDuration(150);
         animator.setChangeDuration(150);
@@ -190,15 +192,15 @@ public class MainActivity extends AppCompatActivity implements HtmlParser.Listen
 
     @Override
     public void onParseComplete(ArrayList<Torrent> torrents, final HashMap<Integer,String> pageLinks) {
-        this.pageLinks = pageLinks;
         hideLoadingProgress();
-
         if(null == torrents) {
             Toast.makeText(MainActivity.this,"Parse error",Toast.LENGTH_SHORT).show();
             return;
         }
 
+        this.pageLinks = pageLinks;
         ArrayList<Torrent> currentPageTorrents = currentPage.getTorrents();
+
         //clear all items from recyclerView
         int size = torrents.size();
         if (size > 0) {
@@ -258,12 +260,10 @@ public class MainActivity extends AppCompatActivity implements HtmlParser.Listen
         }
     }
 
-    protected void loadNewPage(int pageNumber) {
-        Page page = new Page(pageLinks.get(pageNumber), pageNumber);
-        currentPage = page;
-        pages.put(pageNumber,page);
-        showLoadingProgress("Loading page ".concat(String.valueOf(pageNumber)));
-        new NetworkUtils().execute(UriBuilder.buildUrlFromString(pageLinks.get(pageNumber)));
+    @Override
+    public void onParseError(String message) {
+        hideLoadingProgress();
+        Toast.makeText(MainActivity.this,message,Toast.LENGTH_LONG).show();
     }
 
     protected void loadCachedPage(int pageNumber) {
@@ -300,6 +300,29 @@ public class MainActivity extends AppCompatActivity implements HtmlParser.Listen
                 }
             });
         }
+        if(pageNumber != pageLinks.size()) {
+            imgNextPage.setColorFilter(null);
+            imgNextPage.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    int pageNumber = currentPage.getPageNumber() + 1;
+                    //if the page is already cached
+                    if(pages.containsKey(pageNumber)) {
+                        loadCachedPage(pageNumber);
+                    } else {
+                        Page page = new Page(pageLinks.get(pageNumber), pageNumber);
+                        currentPage = page;
+                        pages.put(pageNumber,page);
+                        showLoadingProgress("Loading page ".concat(String.valueOf(pageNumber)));
+                        new NetworkUtils().execute(UriBuilder.buildUrlFromString(pageLinks.get(pageNumber)));
+                    }
+                }
+            });
+        } else {
+            imgNextPage.setColorFilter(
+                    ContextCompat.getColor(MainActivity.this, R.color.buttonDisabled), android.graphics.PorterDuff.Mode.SRC_IN);
+            imgNextPage.setOnClickListener(null);
+        }
         tvPagination.setText("Page ".concat(String.valueOf(currentPage.getPageNumber())).concat(" of ").concat(String.valueOf(pageLinks.size())));
     }
 
@@ -319,13 +342,14 @@ public class MainActivity extends AppCompatActivity implements HtmlParser.Listen
     }
 
     protected void performSearch(String query) {
-        searchPerformed = true;
-        //hold torrent data
-        currentPageTemp = currentPage;
-        pagesTemp = pages;
-        pageLinksTemp = pageLinks;
-
+        if(!searchPerformed) {
+            //hold torrent data
+            currentPageTemp = currentPage;
+            pagesTemp = pages;
+            pageLinksTemp = pageLinks;
+        }
         //hold torrent search result
+        searchPerformed = true;
         pages = new HashMap<>();
         Page page = new Page(UriBuilder.buildQueryUrl(query, UriBuilder.SortOrder.SORT_SEED_DESC).toString(),1);
         currentPage = page;
@@ -342,51 +366,6 @@ public class MainActivity extends AppCompatActivity implements HtmlParser.Listen
         pages = pagesTemp;
         pageLinks = pageLinksTemp;
         searchPerformed = false;
-
-        //clear all search results from recyclerView
-        int size = torrents.size();
-        if (size > 0) {
-            this.torrents.clear();
-            adapter.notifyItemRangeRemoved(0, size);
-        }
-
-        //load cached torrent data
-        ArrayList<Torrent> pageTorrents = currentPage.getTorrents();
-        for(Torrent torrent: pageTorrents) {
-            torrents.add(torrent);
-            adapter.notifyItemInserted(torrents.size());
-        }
-
-        if(currentPage.getPageNumber() == 1) {
-            imgPreviousPage.setColorFilter(
-                    ContextCompat.getColor(MainActivity.this, R.color.buttonDisabled), android.graphics.PorterDuff.Mode.SRC_IN);
-            imgPreviousPage.setOnClickListener(null);
-        } else {
-            imgPreviousPage.setColorFilter(null);
-            imgPreviousPage.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    //load previous page
-                    loadCachedPage(currentPage.getPageNumber() - 1);
-                }
-            });
-            imgNextPage.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    int pageNumber = currentPage.getPageNumber() + 1;
-                    //if the page is already cached
-                    if(pages.containsKey(pageNumber)) {
-                        loadCachedPage(pageNumber);
-                    } else {
-                        Page page = new Page(pageLinks.get(pageNumber), pageNumber);
-                        currentPage = page;
-                        pages.put(pageNumber,page);
-                        showLoadingProgress("Loading page ".concat(String.valueOf(pageNumber)));
-                        new NetworkUtils().execute(UriBuilder.buildUrlFromString(pageLinks.get(pageNumber)));
-                    }
-                }
-            });
-        }
-        tvPagination.setText("Page ".concat(String.valueOf(currentPage.getPageNumber())).concat(" of ").concat(String.valueOf(pageLinks.size())));
+        loadCachedPage(currentPage.getPageNumber());
     }
 }
