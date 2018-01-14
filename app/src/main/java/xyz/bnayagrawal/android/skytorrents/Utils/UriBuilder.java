@@ -32,7 +32,7 @@ public final class UriBuilder {
     private static final String SORT_LATEST = "ad/";
     private static final String SORT_OLDEST = "aa/";
 
-    /* Page number (1st page) */
+    /* Page number (always 1st page) */
     private static final String PAGE_NO = "1/";
 
     /*

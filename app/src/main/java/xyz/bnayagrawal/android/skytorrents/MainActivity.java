@@ -1,10 +1,7 @@
 package xyz.bnayagrawal.android.skytorrents;
 
-import android.app.SearchManager;
-import android.content.Context;
-import android.content.res.ColorStateList;
-import android.content.res.XmlResourceParser;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
@@ -12,14 +9,12 @@ import android.os.Bundle;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.support.v7.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,10 +24,8 @@ import org.jsoup.nodes.Document;
 
 import java.io.IOException;
 import java.net.URL;
-import java.security.PrivateKey;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Timer;
 
 import jp.wasabeef.recyclerview.animators.FadeInUpAnimator;
 import xyz.bnayagrawal.android.skytorrents.Data.Page;
@@ -43,10 +36,11 @@ import xyz.bnayagrawal.android.skytorrents.Utils.UriBuilder;
 public class MainActivity extends AppCompatActivity implements HtmlParser.Listener{
 
     private final int REQUEST_TIME_OUT = 30000;
-    private Page currentPage;
-    private HashMap<Integer,Page> pages;
+    private Page currentPage,currentPageTemp;
+    private HashMap<Integer,Page> pages,pagesTemp;
     private ArrayList<Torrent> torrents;
-    private HashMap<Integer,String> pageLinks;
+    private HashMap<Integer,String> pageLinks,pageLinksTemp;
+    private boolean searchPerformed = false;
 
     private RecyclerView recyclerView;
     private RecyclerView.LayoutManager layoutManager;
@@ -65,10 +59,11 @@ public class MainActivity extends AppCompatActivity implements HtmlParser.Listen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        setSupportActionBar((Toolbar)findViewById(R.id.toolbar_activity_main));
         ActionBar actionbar = getSupportActionBar();
         if(null != actionbar) {
-            actionbar.setTitle(getResources().getString(R.string.title).concat(" | Top 1000"));
-            actionbar.setSubtitle("Displaying 40 torrents");
+            actionbar.setTitle(getResources().getString(R.string.title));
+            actionbar.setSubtitle("Displaying Top 1000");
         }
 
         layoutProgress = findViewById(R.id.layout_progress);
@@ -94,9 +89,32 @@ public class MainActivity extends AppCompatActivity implements HtmlParser.Listen
         MenuInflater menuInflater = getMenuInflater();
         menuInflater.inflate(R.menu.menu_activity_main,menu);
 
-        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         SearchView searchView = (SearchView) menu.findItem(R.id.search).getActionView();
-        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                performSearch(query);
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
+
+        menu.getItem(0).setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
+            @Override
+            public boolean onMenuItemActionExpand(MenuItem menuItem) {
+                return true;
+            }
+
+            @Override
+            public boolean onMenuItemActionCollapse(MenuItem menuItem) {
+                clearSearch();
+                return true;
+            }
+        });
 
         return true;
     }
@@ -240,6 +258,14 @@ public class MainActivity extends AppCompatActivity implements HtmlParser.Listen
         }
     }
 
+    protected void loadNewPage(int pageNumber) {
+        Page page = new Page(pageLinks.get(pageNumber), pageNumber);
+        currentPage = page;
+        pages.put(pageNumber,page);
+        showLoadingProgress("Loading page ".concat(String.valueOf(pageNumber)));
+        new NetworkUtils().execute(UriBuilder.buildUrlFromString(pageLinks.get(pageNumber)));
+    }
+
     protected void loadCachedPage(int pageNumber) {
         if(!pages.containsKey(pageNumber)) {
             Toast.makeText(MainActivity.this,"Error occured!",Toast.LENGTH_SHORT).show();
@@ -264,6 +290,15 @@ public class MainActivity extends AppCompatActivity implements HtmlParser.Listen
             imgPreviousPage.setColorFilter(
                     ContextCompat.getColor(MainActivity.this, R.color.buttonDisabled), android.graphics.PorterDuff.Mode.SRC_IN);
             imgPreviousPage.setOnClickListener(null);
+        } else {
+            imgPreviousPage.setColorFilter(null);
+            imgPreviousPage.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    //load previous page
+                    loadCachedPage(currentPage.getPageNumber() - 1);
+                }
+            });
         }
         tvPagination.setText("Page ".concat(String.valueOf(currentPage.getPageNumber())).concat(" of ").concat(String.valueOf(pageLinks.size())));
     }
@@ -277,5 +312,81 @@ public class MainActivity extends AppCompatActivity implements HtmlParser.Listen
         tvLoadingProgress.setText(message);
         layoutProgress.setVisibility(View.VISIBLE);
         layoutPagination.setVisibility(View.GONE);
+    }
+
+    protected void showError() {
+
+    }
+
+    protected void performSearch(String query) {
+        searchPerformed = true;
+        //hold torrent data
+        currentPageTemp = currentPage;
+        pagesTemp = pages;
+        pageLinksTemp = pageLinks;
+
+        //hold torrent search result
+        pages = new HashMap<>();
+        Page page = new Page(UriBuilder.buildQueryUrl(query, UriBuilder.SortOrder.SORT_SEED_DESC).toString(),1);
+        currentPage = page;
+        pages.put(1,page);
+
+        showLoadingProgress("Performing search...");
+        new NetworkUtils().execute(UriBuilder.buildQueryUrl(query, UriBuilder.SortOrder.SORT_SEED_DESC));
+    }
+
+    protected void clearSearch() {
+        if(!searchPerformed)
+            return;
+        currentPage = currentPageTemp;
+        pages = pagesTemp;
+        pageLinks = pageLinksTemp;
+        searchPerformed = false;
+
+        //clear all search results from recyclerView
+        int size = torrents.size();
+        if (size > 0) {
+            this.torrents.clear();
+            adapter.notifyItemRangeRemoved(0, size);
+        }
+
+        //load cached torrent data
+        ArrayList<Torrent> pageTorrents = currentPage.getTorrents();
+        for(Torrent torrent: pageTorrents) {
+            torrents.add(torrent);
+            adapter.notifyItemInserted(torrents.size());
+        }
+
+        if(currentPage.getPageNumber() == 1) {
+            imgPreviousPage.setColorFilter(
+                    ContextCompat.getColor(MainActivity.this, R.color.buttonDisabled), android.graphics.PorterDuff.Mode.SRC_IN);
+            imgPreviousPage.setOnClickListener(null);
+        } else {
+            imgPreviousPage.setColorFilter(null);
+            imgPreviousPage.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    //load previous page
+                    loadCachedPage(currentPage.getPageNumber() - 1);
+                }
+            });
+            imgNextPage.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    int pageNumber = currentPage.getPageNumber() + 1;
+                    //if the page is already cached
+                    if(pages.containsKey(pageNumber)) {
+                        loadCachedPage(pageNumber);
+                    } else {
+                        Page page = new Page(pageLinks.get(pageNumber), pageNumber);
+                        currentPage = page;
+                        pages.put(pageNumber,page);
+                        showLoadingProgress("Loading page ".concat(String.valueOf(pageNumber)));
+                        new NetworkUtils().execute(UriBuilder.buildUrlFromString(pageLinks.get(pageNumber)));
+                    }
+                }
+            });
+        }
+        tvPagination.setText("Page ".concat(String.valueOf(currentPage.getPageNumber())).concat(" of ").concat(String.valueOf(pageLinks.size())));
     }
 }
