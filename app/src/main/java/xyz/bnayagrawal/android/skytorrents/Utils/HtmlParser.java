@@ -40,14 +40,12 @@ public class HtmlParser extends AsyncTask<Document, Torrent, ArrayList<Torrent>>
             if (0 == tables.size()) {
                 errorOccured = true;
                 errorMessage = "No torrent data found!";
-                torrents = null;
-                return torrents;
+                return null;
             }
             Element table = tables.get(0);
             Elements tbody = table.getElementsByTag("tbody");
             if (0 == tbody.size()) {
-                torrents = null;
-                return torrents;
+                return null;
             }
             Elements trow = (tbody.get(0)).getElementsByTag("tr");
 
@@ -70,8 +68,6 @@ public class HtmlParser extends AsyncTask<Document, Torrent, ArrayList<Torrent>>
                     seeds = Integer.parseInt(tdata.get(4).text());
                     peers = Integer.parseInt(tdata.get(5).text());
                     torrents.add(new Torrent(name, magnetUrl, detailsUrl, fileSize, fileCount, dateAdded, seeds, peers));
-                } else {
-                    continue;
                 }
             }
 
@@ -86,9 +82,7 @@ public class HtmlParser extends AsyncTask<Document, Torrent, ArrayList<Torrent>>
                 if ((null != text && StringUtil.isNumeric(text)) || (null != title && StringUtil.isNumeric(title))) {
                     pageNumber = Integer.parseInt(text);
                     pageUrl = link.attr("abs:href");
-                    if (pageLinks.containsKey(pageNumber))
-                        continue;
-                    else
+                    if (!pageLinks.containsKey(pageNumber))
                         pageLinks.put(pageNumber, pageUrl);
                 }
             }
