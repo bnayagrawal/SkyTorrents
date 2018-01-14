@@ -9,13 +9,85 @@
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recycler_view_torrents"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="invisible"/>
+        android:layout_height="match_parent" />
 
-    <ProgressBar
-        android:id="@+id/pb_loading_indicator"
-        android:layout_height="@dimen/act_main_progress_bar_hw"
-        android:layout_width="@dimen/act_main_progress_bar_hw"
+    <android.support.v7.widget.CardView
+        android:id="@+id/layout_progress"
         android:layout_gravity="center"
-        android:visibility="visible" />
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:contentPadding="8dp"
+        app:cardElevation="6dp"
+        app:cardCornerRadius="6dp">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <ProgressBar
+                android:layout_height="@dimen/act_main_progress_bar_hw"
+                android:layout_width="@dimen/act_main_progress_bar_hw" />
+
+            <TextView
+                android:id="@+id/tv_loading_progress"
+                android:layout_gravity="center_vertical"
+                android:paddingLeft="6dp"
+                android:paddingRight="6dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+    </android.support.v7.widget.CardView>
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/layout_pagination"
+        android:layout_marginBottom="12dp"
+        android:layout_gravity="bottom|center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:contentPadding="8dp"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="6dp">
+
+        <LinearLayout
+            android:gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minWidth="24dp"
+            android:minHeight="24dp"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/img_page_previous"
+                android:clickable="true"
+                android:focusable="true"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginRight="6dp"
+                android:src="@drawable/ic_chevron_sign_left"/>
+
+            <TextView
+                android:id="@+id/tv_pagination"
+                android:layout_gravity="center_vertical"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:text="Page: 2 (24)"
+                android:textColor="@color/colorPrimaryDark"/>
+
+            <ImageView
+                android:id="@+id/img_page_next"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginLeft="6dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:src="@drawable/ic_chevron_sign_right"/>
+        </LinearLayout>
+    </android.support.v7.widget.CardView>
 </FrameLayout>

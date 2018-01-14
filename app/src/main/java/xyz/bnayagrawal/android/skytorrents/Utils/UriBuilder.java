@@ -81,6 +81,18 @@ public final class UriBuilder {
         return url;
     }
 
+    public static URL buildUrlFromString(String mUrl) {
+        Uri builtUri = Uri.parse(mUrl).buildUpon().build();
+        URL url = null;
+        try {
+            url = new URL(builtUri.toString());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+
+        return url;
+    }
+
     public enum SortOrder {
         SORT_SEED_DESC,
         SORT_SEED_ASC,

@@ -7,6 +7,8 @@
     <!-- menu:menu_activity_main -->
     <string name="action_sort">Sort</string>
     <string name="action_about">About</string>
+    <string name="action_search">Search</string>
+    <string name="search_hint">Search torrent...</string>
 
     <!-- layout:torrent_list_item -->
     <string name="file_size">File Size</string>

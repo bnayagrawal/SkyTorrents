@@ -1,5 +1,7 @@
 package xyz.bnayagrawal.android.skytorrents;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -7,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -35,14 +38,16 @@ public class TRAdapter extends RecyclerView.Adapter<TRAdapter.ViewHolder> {
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(ViewHolder holder, final int position) {
         String shortDescription;
 
         //cycle through each page
         holder.imgMagnetLink.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //TODO: Launch torrent detail activity
+                ClipboardManager clipboardManager = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+                clipboardManager.setPrimaryClip(ClipData.newPlainText("Magnet URL",torrents.get(position).getMagnetUrl()));
+                Toast.makeText(context,"magnet link copied to clipboard!",Toast.LENGTH_SHORT).show();
             }
         });
 

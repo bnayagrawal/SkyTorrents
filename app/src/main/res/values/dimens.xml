@@ -11,4 +11,5 @@
 
     <!-- ProgressBar -->
     <dimen name="act_main_progress_bar_hw">42dp</dimen>
+    <dimen name="act_main_load_more_progress_bar_hw">32dp</dimen>
 </resources>

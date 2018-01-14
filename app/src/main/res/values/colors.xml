@@ -10,4 +10,6 @@
     <color name="blackText">#000</color>
 
     <color name="horizontalLine">#dadada</color>
+    <color name="rippleColor">#bdbdbd</color>
+    <color name="buttonDisabled">#bdbdbd</color>
 </resources>
