@@ -1,7 +1,6 @@
 package xyz.bnayagrawal.android.skytorrents.Utils;
 
 import android.os.AsyncTask;
-import android.util.Log;
 
 import org.jsoup.helper.StringUtil;
 import org.jsoup.nodes.Document;
@@ -19,7 +18,7 @@ import xyz.bnayagrawal.android.skytorrents.Data.Torrent;
 
 public class HtmlParser extends AsyncTask<Document, Torrent, ArrayList<Torrent>> {
     private Listener mListener;
-    private boolean errorOccured = false;
+    private boolean errorOccurred = false;
     private String errorMessage = "";
     private HashMap<Integer, String> pageLinks;
 
@@ -38,7 +37,7 @@ public class HtmlParser extends AsyncTask<Document, Torrent, ArrayList<Torrent>>
 
             Elements tables = document.getElementsByTag("table");
             if (0 == tables.size()) {
-                errorOccured = true;
+                errorOccurred = true;
                 errorMessage = "No torrent data found!";
                 return null;
             }
@@ -88,7 +87,7 @@ public class HtmlParser extends AsyncTask<Document, Torrent, ArrayList<Torrent>>
             }
 
         } catch (Exception ex) {
-            errorOccured = true;
+            errorOccurred = true;
             errorMessage = ex.getMessage();
             ex.printStackTrace();
         }
@@ -97,7 +96,7 @@ public class HtmlParser extends AsyncTask<Document, Torrent, ArrayList<Torrent>>
 
     @Override
     protected void onPostExecute(ArrayList<Torrent> torrents) {
-        if(errorOccured) {
+        if(errorOccurred) {
             mListener.onParseError(errorMessage);
             return;
         }

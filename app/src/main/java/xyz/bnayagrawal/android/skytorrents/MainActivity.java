@@ -14,6 +14,9 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.support.v7.widget.SearchView;
 import android.widget.TextView;
@@ -55,6 +58,8 @@ public class MainActivity extends AppCompatActivity implements HtmlParser.Listen
     private ImageView imgNextPage;
     private ImageView imgPreviousPage;
 
+    private Animation fadeInAnimation,fadeOutAnimation;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,6 +79,10 @@ public class MainActivity extends AppCompatActivity implements HtmlParser.Listen
         tvPagination = findViewById(R.id.tv_pagination);
         imgNextPage = findViewById(R.id.img_page_next);
         imgPreviousPage = findViewById(R.id.img_page_previous);
+
+        //animation
+        fadeInAnimation = AnimationUtils.loadAnimation(MainActivity.this,R.anim.fade_in);
+        fadeOutAnimation = AnimationUtils.loadAnimation(MainActivity.this,R.anim.fade_out);
 
         initializeRecyclerView();
         showLoadingProgress("Fetching data...");
@@ -328,13 +337,17 @@ public class MainActivity extends AppCompatActivity implements HtmlParser.Listen
 
     protected void hideLoadingProgress() {
         layoutProgress.setVisibility(View.GONE);
+        layoutProgress.startAnimation(fadeOutAnimation);
         layoutPagination.setVisibility(View.VISIBLE);
+        layoutPagination.startAnimation(fadeInAnimation);
     }
 
     protected void showLoadingProgress(String message) {
         tvLoadingProgress.setText(message);
         layoutProgress.setVisibility(View.VISIBLE);
+        layoutProgress.startAnimation(fadeInAnimation);
         layoutPagination.setVisibility(View.GONE);
+        layoutPagination.startAnimation(fadeOutAnimation);
     }
 
     protected void showError() {
