@@ -6,7 +6,8 @@ This application shows the latest popular torrents which is retrieved and parsed
 User can search for a torrent. Clicking on magnet icon copies the magnet link of the torrent.<br/><br/>
 
 Html parsing is done using the library provided by https://jsoup.org/<br/>
-This app makes use of recycler animation made by https://github.com/wasabeef/recyclerview-animators<br/><br/>
+This app makes use of recycler animation made by https://github.com/wasabeef/recyclerview-animators<br/>
+Some of the icons used in this app are download from https://www.flaticon.com/<br/><br/>
 
 Please visit https://skytorrents.in to browse latest popular torrents.
 
