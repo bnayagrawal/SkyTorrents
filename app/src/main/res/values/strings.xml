@@ -15,4 +15,15 @@
     <string name="seeds">Seeds</string>
     <string name="peers">Peers</string>
     <string name="title_activity_main2">Main2Activity</string>
+
+    <!-- Context Menu [sorting] -->
+    <string name="action_sort_by_seeds_desc">Seeds DSC</string>
+    <string name="action_sort_by_seeds_asc">Seeds ASC</string>
+    <string name="action_sort_by_peers_desc">Peers DSC</string>
+    <string name="action_sort_by_peers_asc">Peers ASC</string>
+    <string name="action_sort_by_big_to_small">Big to small</string>
+    <string name="action_sort_by_small_to_big">Small to big</string>
+    <string name="action_sort_by_latest">Latest</string>
+    <string name="action_sort_by_oldest">Oldest</string>
+
 </resources>

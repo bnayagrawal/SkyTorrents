@@ -69,6 +69,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:visibility="gone"
+            app:cardBackgroundColor="@color/colorPrimary"
             app:contentPadding="8dp"
             app:cardCornerRadius="20dp"
             app:cardElevation="6dp">
@@ -98,7 +99,7 @@
                     android:textSize="16sp"
                     android:textStyle="bold"
                     android:text="Page: 2 (24)"
-                    android:textColor="@color/colorPrimaryDark"/>
+                    android:textColor="@android:color/white"/>
 
                 <ImageView
                     android:id="@+id/img_page_next"

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:id="@+id/menu_group_sort_by"
+        android:checkableBehavior="single">
+
+        <item android:id="@+id/menu_sort_by_seeds_desc"
+            android:checked="true"
+            android:title="@string/action_sort_by_seeds_desc"/>
+
+        <item android:id="@+id/menu_sort_by_seeds_asc"
+            android:title="@string/action_sort_by_seeds_asc"/>
+
+        <item android:id="@+id/menu_sort_by_peers_desc"
+            android:title="@string/action_sort_by_peers_desc"/>
+
+        <item android:id="@+id/menu_sort_by_peers_asc"
+            android:title="@string/action_sort_by_peers_asc"/>
+
+        <item android:id="@+id/menu_sort_by_big_to_small"
+            android:title="@string/action_sort_by_big_to_small"/>
+
+        <item android:id="@+id/menu_sort_by_small_to_big"
+            android:title="@string/action_sort_by_small_to_big"/>
+
+        <item android:id="@+id/menu_sort_by_latest"
+            android:title="@string/action_sort_by_latest"/>
+
+        <item android:id="@+id/menu_sort_by_oldest"
+            android:title="@string/action_sort_by_oldest"/>
+    </group>
+</menu>

@@ -1,5 +1,6 @@
 package xyz.bnayagrawal.android.skytorrents;
 
+import android.net.Uri;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
@@ -8,8 +9,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.ContextMenu;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -37,14 +42,16 @@ import xyz.bnayagrawal.android.skytorrents.Data.Torrent;
 import xyz.bnayagrawal.android.skytorrents.Utils.HtmlParser;
 import xyz.bnayagrawal.android.skytorrents.Utils.UriBuilder;
 
-public class MainActivity extends AppCompatActivity implements HtmlParser.Listener{
+public class MainActivity extends AppCompatActivity implements HtmlParser.Listener,PopupMenu.OnMenuItemClickListener {
 
     private final int REQUEST_TIME_OUT = 30000;
     private Page currentPage,currentPageTemp;
     private HashMap<Integer,Page> pages,pagesTemp;
+    private HashMap<UriBuilder.SortOrder,Integer> sortOrderMenuIdMap;
     private ArrayList<Torrent> torrents;
     private HashMap<Integer,String> pageLinks,pageLinksTemp;
     private boolean searchPerformed = false;
+    private String searchQuery = "";
 
     private RecyclerView recyclerView;
     private RecyclerView.LayoutManager layoutManager;
@@ -58,6 +65,7 @@ public class MainActivity extends AppCompatActivity implements HtmlParser.Listen
     private ImageView imgNextPage;
     private ImageView imgPreviousPage;
 
+    private UriBuilder.SortOrder sortOrder = UriBuilder.SortOrder.SORT_SEED_DESC;
     private Animation fadeInAnimation,fadeOutAnimation;
 
     @Override
@@ -84,9 +92,12 @@ public class MainActivity extends AppCompatActivity implements HtmlParser.Listen
         fadeInAnimation = AnimationUtils.loadAnimation(MainActivity.this,R.anim.fade_in);
         fadeOutAnimation = AnimationUtils.loadAnimation(MainActivity.this,R.anim.fade_out);
 
+        initSortOrderMenuIdMap();
         initializeRecyclerView();
+
+        //start fetching data
         showLoadingProgress("Fetching data...");
-        new NetworkUtils().execute(UriBuilder.buildUrl(UriBuilder.SortOrder.SORT_SEED_DESC));
+        new NetworkUtils().execute(UriBuilder.buildUrl(sortOrder));
     }
 
     @Override
@@ -131,16 +142,76 @@ public class MainActivity extends AppCompatActivity implements HtmlParser.Listen
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        return super.onOptionsItemSelected(item);
+        switch (item.getItemId()) {
+            case R.id.action_sort:
+                showPopupMenu(findViewById(R.id.action_sort));
+                break;
+        }
+        return true;
+    }
+
+    public void showPopupMenu(View v) {
+        PopupMenu popup = new PopupMenu(this, v);
+        MenuInflater inflater = popup.getMenuInflater();
+        inflater.inflate(R.menu.context_menu_activity_main, popup.getMenu());
+        popup.getMenu().findItem(sortOrderMenuIdMap.get(sortOrder)).setChecked(true);
+        popup.setOnMenuItemClickListener(this);
+        popup.show();
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_sort_by_seeds_desc:
+                sortOrder = UriBuilder.SortOrder.SORT_SEED_DESC;
+                reloadData();
+                break;
+            case R.id.menu_sort_by_seeds_asc:
+                sortOrder = UriBuilder.SortOrder.SORT_SEED_ASC;
+                reloadData();
+                break;
+            case R.id.menu_sort_by_peers_desc:
+                sortOrder = UriBuilder.SortOrder.SORT_PEERS_DESC;
+                reloadData();
+                break;
+            case R.id.menu_sort_by_peers_asc:
+                sortOrder = UriBuilder.SortOrder.SORT_PEERS_ASC;
+                reloadData();
+                break;
+            case R.id.menu_sort_by_big_to_small:
+                sortOrder = UriBuilder.SortOrder.SORT_BIG_TO_SMALL;
+                reloadData();
+                break;
+            case R.id.menu_sort_by_small_to_big:
+                sortOrder = UriBuilder.SortOrder.SORT_SMALL_TO_BIG;
+                reloadData();
+                break;
+            case R.id.menu_sort_by_latest:
+                sortOrder = UriBuilder.SortOrder.SORT_LATEST;
+                reloadData();
+                break;
+            case R.id.menu_sort_by_oldest:
+                sortOrder = UriBuilder.SortOrder.SORT_OLDEST;
+                reloadData();
+                break;
+        }
+        return true;
+    }
+
+    protected void initSortOrderMenuIdMap(){
+        sortOrderMenuIdMap = new HashMap<>();
+        sortOrderMenuIdMap.put(UriBuilder.SortOrder.SORT_SEED_DESC, R.id.menu_sort_by_seeds_desc);
+        sortOrderMenuIdMap.put(UriBuilder.SortOrder.SORT_SEED_ASC, R.id.menu_sort_by_seeds_asc);
+        sortOrderMenuIdMap.put(UriBuilder.SortOrder.SORT_PEERS_DESC, R.id.menu_sort_by_peers_desc);
+        sortOrderMenuIdMap.put(UriBuilder.SortOrder.SORT_PEERS_ASC, R.id.menu_sort_by_peers_asc);
+        sortOrderMenuIdMap.put(UriBuilder.SortOrder.SORT_BIG_TO_SMALL, R.id.menu_sort_by_big_to_small);
+        sortOrderMenuIdMap.put(UriBuilder.SortOrder.SORT_SMALL_TO_BIG, R.id.menu_sort_by_small_to_big);
+        sortOrderMenuIdMap.put(UriBuilder.SortOrder.SORT_LATEST, R.id.menu_sort_by_latest);
+        sortOrderMenuIdMap.put(UriBuilder.SortOrder.SORT_OLDEST, R.id.menu_sort_by_oldest);
     }
 
     protected void initializeRecyclerView() {
-        pages = new HashMap<>();
-        torrents = new ArrayList<>();
-        Page page = new Page(UriBuilder.buildUrl(UriBuilder.SortOrder.SORT_SEED_DESC).toString(),1);
-        currentPage = page;
-        pages.put(1,page);
-
+        initPages(UriBuilder.buildUrl(sortOrder).toString(),true);
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view_torrents);
         layoutManager = new LinearLayoutManager(MainActivity.this,
                 LinearLayoutManager.VERTICAL,
@@ -158,6 +229,35 @@ public class MainActivity extends AppCompatActivity implements HtmlParser.Listen
 
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);
+    }
+
+    protected void initPages(String url,boolean instantiateTorrents) {
+        pages = new HashMap<>();
+
+        /*
+        * torrents must be instantiated only once.
+        * Since recyclerAdapter holds the reference of this torrents reference.
+        * if the reference is changed or re-instantiated, recycler wont be able
+        * to update any data since the reference won't be updated there.
+        * */
+
+        if(instantiateTorrents)
+            torrents = new ArrayList<>();
+
+        Page page = new Page(url,1);
+        currentPage = page;
+        pages.put(1,page);
+    }
+
+    protected void reloadData() {
+        if(searchPerformed) {
+            performSearch(searchQuery);
+        }
+        else {
+            initPages(UriBuilder.buildUrl(sortOrder).toString(),false);
+            showLoadingProgress("Fetching sorted data...");
+            new NetworkUtils().execute(UriBuilder.buildUrl(sortOrder));
+        }
     }
 
     //called after document is retrieved from internet
@@ -277,7 +377,7 @@ public class MainActivity extends AppCompatActivity implements HtmlParser.Listen
 
     protected void loadCachedPage(int pageNumber) {
         if(!pages.containsKey(pageNumber)) {
-            Toast.makeText(MainActivity.this,"Error occured!",Toast.LENGTH_SHORT).show();
+            Toast.makeText(MainActivity.this,"Error occurred!",Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -350,10 +450,6 @@ public class MainActivity extends AppCompatActivity implements HtmlParser.Listen
         layoutPagination.startAnimation(fadeOutAnimation);
     }
 
-    protected void showError() {
-
-    }
-
     protected void performSearch(String query) {
         if(!searchPerformed) {
             //hold torrent data
@@ -363,13 +459,11 @@ public class MainActivity extends AppCompatActivity implements HtmlParser.Listen
         }
         //hold torrent search result
         searchPerformed = true;
-        pages = new HashMap<>();
-        Page page = new Page(UriBuilder.buildQueryUrl(query, UriBuilder.SortOrder.SORT_SEED_DESC).toString(),1);
-        currentPage = page;
-        pages.put(1,page);
+        searchQuery = query;
+        initPages(UriBuilder.buildQueryUrl(query, sortOrder).toString(),false);
 
         showLoadingProgress("Performing search...");
-        new NetworkUtils().execute(UriBuilder.buildQueryUrl(query, UriBuilder.SortOrder.SORT_SEED_DESC));
+        new NetworkUtils().execute(UriBuilder.buildQueryUrl(query, sortOrder));
     }
 
     protected void clearSearch() {
