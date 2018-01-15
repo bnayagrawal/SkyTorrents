@@ -9,6 +9,7 @@
     <color name="secondaryText">#7a7a7a</color>
     <color name="blackText">#000</color>
 
+    <color name="layoutBackgroundLight">#DFDFDF</color>
     <color name="horizontalLine">#dadada</color>
     <color name="rippleColor">#bdbdbd</color>
     <color name="buttonDisabled">#bdbdbd</color>

@@ -27,4 +27,9 @@
     <string name="action_sort_by_oldest">Oldest</string>
     <string name="title_activity_torrent_info">TorrentInfoActivity</string>
 
+    <string name="network_error">
+        Please check your internet connection!
+        If this website is blocked by isp, try again using
+        free vpn apps like operaVpn, hotspot shield etc.
+    </string>
 </resources>

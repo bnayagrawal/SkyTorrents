@@ -1,5 +1,8 @@
 package xyz.bnayagrawal.android.skytorrents;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -15,8 +18,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.support.v7.widget.SearchView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -44,7 +49,7 @@ public class MainActivity extends AppCompatActivity
     private HashMap<UriBuilder.SortOrder,Integer> sortOrderMenuIdMap;
     private ArrayList<Torrent> torrents;
     private HashMap<Integer,String> pageLinks,pageLinksTemp;
-    private boolean searchPerformed = false;
+    private boolean performingSearch = false;
     private String searchQuery = "";
 
     private RecyclerView recyclerView;
@@ -53,6 +58,9 @@ public class MainActivity extends AppCompatActivity
 
     private CardView layoutProgress;
     private TextView tvLoadingProgress;
+
+    private LinearLayout layoutError;
+    private Button retryButton;
 
     private CardView layoutPagination;
     private TextView tvPagination;
@@ -81,6 +89,19 @@ public class MainActivity extends AppCompatActivity
         tvPagination = findViewById(R.id.tv_pagination);
         imgNextPage = findViewById(R.id.img_page_next);
         imgPreviousPage = findViewById(R.id.img_page_previous);
+
+        layoutError = findViewById(R.id.layout_error);
+        retryButton = findViewById(R.id.button_retry);
+        retryButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                layoutError.setVisibility(View.GONE);
+                layoutError.startAnimation(fadeOutAnimation);
+                initPages(UriBuilder.buildUrl(sortOrder).toString(),false);
+                showLoadingProgress("Fetching data...");
+                new DocumentFetcher(MainActivity.this).execute(UriBuilder.buildUrl(sortOrder));
+            }
+        });
 
         //animation
         fadeInAnimation = AnimationUtils.loadAnimation(MainActivity.this,R.anim.fade_in);
@@ -244,7 +265,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     protected void reloadData() {
-        if(searchPerformed) {
+        if(performingSearch) {
             performSearch(searchQuery);
         }
         else {
@@ -252,6 +273,12 @@ public class MainActivity extends AppCompatActivity
             showLoadingProgress("Fetching sorted data...");
             new DocumentFetcher(MainActivity.this).execute(UriBuilder.buildUrl(sortOrder));
         }
+    }
+
+    public boolean isOnline() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 
     //called after document is retrieved from internet
@@ -264,7 +291,16 @@ public class MainActivity extends AppCompatActivity
     //document fetch error
     @Override
     public void onDocumentFetchError(IOException ioException) {
-        Toast.makeText(MainActivity.this,ioException.getMessage(),Toast.LENGTH_LONG).show();
+        String message = ioException.getMessage();
+        if(!isOnline() || message.contains("Handshake") || message.contains("ssl")) {
+            if(pages == null || pages.size() == 1) {
+                showError();
+                return;
+            }
+            else
+                Toast.makeText(MainActivity.this, "Please check your internet connection!", Toast.LENGTH_LONG).show();
+        } else
+            Toast.makeText(MainActivity.this,message,Toast.LENGTH_LONG).show();
         hideLoadingProgress();
     }
 
@@ -419,15 +455,24 @@ public class MainActivity extends AppCompatActivity
         layoutPagination.startAnimation(fadeOutAnimation);
     }
 
+    protected void showError() {
+        layoutProgress.setVisibility(View.GONE);
+        layoutProgress.startAnimation(fadeOutAnimation);
+        layoutPagination.setVisibility(View.GONE);
+        layoutPagination.startAnimation(fadeOutAnimation);
+        layoutError.setVisibility(View.VISIBLE);
+        layoutError.startAnimation(fadeInAnimation);
+    }
+
     protected void performSearch(String query) {
-        if(!searchPerformed) {
+        if(!performingSearch) {
             //hold torrent data
             currentPageTemp = currentPage;
             pagesTemp = pages;
             pageLinksTemp = pageLinks;
         }
         //hold torrent search result
-        searchPerformed = true;
+        performingSearch = true;
         searchQuery = query;
         initPages(UriBuilder.buildQueryUrl(query, sortOrder).toString(),false);
 
@@ -436,12 +481,12 @@ public class MainActivity extends AppCompatActivity
     }
 
     protected void clearSearch() {
-        if(!searchPerformed)
+        if(!performingSearch)
             return;
         currentPage = currentPageTemp;
         pages = pagesTemp;
         pageLinks = pageLinksTemp;
-        searchPerformed = false;
+        performingSearch = false;
         loadCachedPage(currentPage.getPageNumber());
     }
 }
