@@ -5,6 +5,7 @@
     android:orientation="vertical">
 
     <TableLayout
+        android:id="@+id/tlItemContainer"
         android:clickable="true"
         android:focusable="true"
         android:focusableInTouchMode="false"

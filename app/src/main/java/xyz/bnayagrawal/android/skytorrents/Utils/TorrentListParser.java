@@ -13,17 +13,17 @@ import java.util.HashMap;
 import xyz.bnayagrawal.android.skytorrents.Data.Torrent;
 
 /**
- * Created by binay on 13/1/18.
+ * Created by binay on 15/1/18.
  */
 
-public class HtmlParser extends AsyncTask<Document, Torrent, ArrayList<Torrent>> {
-    private Listener mListener;
+public class TorrentListParser extends AsyncTask<Document, Void, ArrayList<Torrent>> {
+    private TorrentListParserListener mTorrentListParserListener;
     private boolean errorOccurred = false;
     private String errorMessage = "";
     private HashMap<Integer, String> pageLinks;
 
-    public HtmlParser(HtmlParser.Listener mListener) {
-        this.mListener = mListener;
+    public TorrentListParser(TorrentListParserListener mListener) {
+        this.mTorrentListParserListener = mListener;
     }
 
     @Override
@@ -96,15 +96,15 @@ public class HtmlParser extends AsyncTask<Document, Torrent, ArrayList<Torrent>>
 
     @Override
     protected void onPostExecute(ArrayList<Torrent> torrents) {
-        if(errorOccurred) {
-            mListener.onParseError(errorMessage);
-            return;
-        }
-        mListener.onParseComplete(torrents, pageLinks);
+        if(errorOccurred)
+            mTorrentListParserListener.onTorrentListParseError(errorMessage);
+        else
+            mTorrentListParserListener.onTorrentListParseComplete(torrents, pageLinks);
     }
 
-    public interface Listener {
-        void onParseComplete(ArrayList<Torrent> torrents, HashMap<Integer, String> pageLinks);
-        void onParseError(String message);
+    public interface TorrentListParserListener {
+        void onTorrentListParseComplete(ArrayList<Torrent> torrents, HashMap<Integer, String> pageLinks);
+        void onTorrentListParseError(String message);
     }
 }
+

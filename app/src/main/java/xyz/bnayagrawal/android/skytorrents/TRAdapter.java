@@ -3,11 +3,13 @@ package xyz.bnayagrawal.android.skytorrents;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,7 +43,25 @@ public class TRAdapter extends RecyclerView.Adapter<TRAdapter.ViewHolder> {
     public void onBindViewHolder(ViewHolder holder, final int position) {
         String shortDescription;
 
-        //cycle through each page
+        //launch torrentInfo activity
+        holder.tlItemContainer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(context,TorrentInfoActivity.class);
+
+                intent.putExtra("NAME",torrents.get(position).getName());
+                intent.putExtra("MAGNET_URL",torrents.get(position).getMagnetUrl());
+                intent.putExtra("DETAILS_URL",torrents.get(position).getDetailsUrl());
+                intent.putExtra("FILE_SIZE",torrents.get(position).getFileSize());
+                intent.putExtra("DATE_ADDED",torrents.get(position).getDateAdded());
+                intent.putExtra("FILE_COUNT",torrents.get(position).getFileCount());
+                intent.putExtra("SEEDS",torrents.get(position).getSeeds());
+                intent.putExtra("PEERS",torrents.get(position).getPeers());
+
+                context.startActivity(intent);
+            }
+        });
+
         holder.imgMagnetLink.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -75,6 +95,7 @@ public class TRAdapter extends RecyclerView.Adapter<TRAdapter.ViewHolder> {
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
+        private TableLayout tlItemContainer;
         private TextView tvTorrentName;
         private TextView tvTorrentDesc;
         private TextView tvFileSize;
@@ -84,6 +105,7 @@ public class TRAdapter extends RecyclerView.Adapter<TRAdapter.ViewHolder> {
 
         public ViewHolder(View view) {
             super(view);
+            tlItemContainer = view.findViewById(R.id.tlItemContainer);
             tvTorrentName = view.findViewById(R.id.tv_torrent_name);
             tvTorrentDesc = view.findViewById(R.id.tv_torrent_desc);
             tvFileSize = view.findViewById(R.id.tv_torrent_size);

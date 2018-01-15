@@ -25,5 +25,6 @@
     <string name="action_sort_by_small_to_big">Small to big</string>
     <string name="action_sort_by_latest">Latest</string>
     <string name="action_sort_by_oldest">Oldest</string>
+    <string name="title_activity_torrent_info">TorrentInfoActivity</string>
 
 </resources>

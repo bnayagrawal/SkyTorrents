@@ -1,10 +1,7 @@
 package xyz.bnayagrawal.android.skytorrents;
 
-import android.net.Uri;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
-import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.CardView;
@@ -12,14 +9,10 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
-import android.view.ContextMenu;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
@@ -31,20 +24,21 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import jp.wasabeef.recyclerview.adapters.ScaleInAnimationAdapter;
 import jp.wasabeef.recyclerview.animators.FadeInUpAnimator;
 import xyz.bnayagrawal.android.skytorrents.Data.Page;
 import xyz.bnayagrawal.android.skytorrents.Data.Torrent;
-import xyz.bnayagrawal.android.skytorrents.Utils.HtmlParser;
+import xyz.bnayagrawal.android.skytorrents.Utils.DocumentFetcher;
+import xyz.bnayagrawal.android.skytorrents.Utils.TorrentListParser;
 import xyz.bnayagrawal.android.skytorrents.Utils.UriBuilder;
 
-public class MainActivity extends AppCompatActivity implements HtmlParser.Listener,PopupMenu.OnMenuItemClickListener {
+public class MainActivity extends AppCompatActivity
+        implements DocumentFetcher.Listener,
+        TorrentListParser.TorrentListParserListener,
+        PopupMenu.OnMenuItemClickListener {
 
-    private final int REQUEST_TIME_OUT = 30000;
     private Page currentPage,currentPageTemp;
     private HashMap<Integer,Page> pages,pagesTemp;
     private HashMap<UriBuilder.SortOrder,Integer> sortOrderMenuIdMap;
@@ -97,7 +91,7 @@ public class MainActivity extends AppCompatActivity implements HtmlParser.Listen
 
         //start fetching data
         showLoadingProgress("Fetching data...");
-        new NetworkUtils().execute(UriBuilder.buildUrl(sortOrder));
+        new DocumentFetcher(MainActivity.this).execute(UriBuilder.buildUrl(sortOrder));
     }
 
     @Override
@@ -256,51 +250,26 @@ public class MainActivity extends AppCompatActivity implements HtmlParser.Listen
         else {
             initPages(UriBuilder.buildUrl(sortOrder).toString(),false);
             showLoadingProgress("Fetching sorted data...");
-            new NetworkUtils().execute(UriBuilder.buildUrl(sortOrder));
+            new DocumentFetcher(MainActivity.this).execute(UriBuilder.buildUrl(sortOrder));
         }
     }
 
     //called after document is retrieved from internet
-    protected void onDocumentFetchComplete(Document document) {
+    @Override
+    public void onDocumentFetchComplete(Document document) {
         showLoadingProgress("Parsing data...");
-        (new HtmlParser(this)).execute(document);
+        (new TorrentListParser(MainActivity.this)).execute(document);
     }
 
     //document fetch error
-    protected void onFetchError(IOException ioException) {
+    @Override
+    public void onDocumentFetchError(IOException ioException) {
         Toast.makeText(MainActivity.this,ioException.getMessage(),Toast.LENGTH_LONG).show();
         hideLoadingProgress();
     }
 
-    class NetworkUtils extends AsyncTask<URL,Void,Document> {
-        private IOException ioException = null;
-        @Override
-        protected Document doInBackground(URL... urls) {
-            Document document;
-            URL url = urls[0];
-            try {
-                document = Jsoup.connect(url.toString()).timeout(REQUEST_TIME_OUT).get();
-            } catch (IOException ioe) {
-                document = null;
-                this.ioException = ioe;
-                ioe.printStackTrace();
-            }
-            return document;
-        }
-
-        @Override
-        protected void onPostExecute(Document document) {
-            if(null != document)
-                onDocumentFetchComplete(document);
-            else {
-                //TODO: report error
-                onFetchError(ioException);
-            }
-        }
-    }
-
     @Override
-    public void onParseComplete(ArrayList<Torrent> torrents, final HashMap<Integer,String> pageLinks) {
+    public void onTorrentListParseComplete(ArrayList<Torrent> torrents, final HashMap<Integer,String> pageLinks) {
         hideLoadingProgress();
         if(null == torrents) {
             Toast.makeText(MainActivity.this,"Parse error",Toast.LENGTH_SHORT).show();
@@ -357,7 +326,7 @@ public class MainActivity extends AppCompatActivity implements HtmlParser.Listen
                         currentPage = page;
                         pages.put(pageNumber,page);
                         showLoadingProgress("Loading page ".concat(String.valueOf(pageNumber)));
-                        new NetworkUtils().execute(UriBuilder.buildUrlFromString(pageLinks.get(pageNumber)));
+                        new DocumentFetcher(MainActivity.this).execute(UriBuilder.buildUrlFromString(pageLinks.get(pageNumber)));
                     }
                 }
             });
@@ -370,7 +339,7 @@ public class MainActivity extends AppCompatActivity implements HtmlParser.Listen
     }
 
     @Override
-    public void onParseError(String message) {
+    public void onTorrentListParseError(String message) {
         hideLoadingProgress();
         Toast.makeText(MainActivity.this,message,Toast.LENGTH_LONG).show();
     }
@@ -423,7 +392,7 @@ public class MainActivity extends AppCompatActivity implements HtmlParser.Listen
                         currentPage = page;
                         pages.put(pageNumber,page);
                         showLoadingProgress("Loading page ".concat(String.valueOf(pageNumber)));
-                        new NetworkUtils().execute(UriBuilder.buildUrlFromString(pageLinks.get(pageNumber)));
+                        new DocumentFetcher(MainActivity.this).execute(UriBuilder.buildUrlFromString(pageLinks.get(pageNumber)));
                     }
                 }
             });
@@ -463,7 +432,7 @@ public class MainActivity extends AppCompatActivity implements HtmlParser.Listen
         initPages(UriBuilder.buildQueryUrl(query, sortOrder).toString(),false);
 
         showLoadingProgress("Performing search...");
-        new NetworkUtils().execute(UriBuilder.buildQueryUrl(query, sortOrder));
+        new DocumentFetcher(MainActivity.this).execute(UriBuilder.buildQueryUrl(query, sortOrder));
     }
 
     protected void clearSearch() {

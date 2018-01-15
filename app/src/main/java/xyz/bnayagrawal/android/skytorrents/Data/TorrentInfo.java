@@ -1,48 +1,56 @@
 package xyz.bnayagrawal.android.skytorrents.Data;
 
-import java.util.Date;
 import java.util.HashMap;
+import java.util.SimpleTimeZone;
 
 /**
- * Created by binay on 13/1/18.
+ * Created by binay on 15/1/18.
  */
 
-public class Torrent {
+public class TorrentInfo {
     private String name;
     private String magnetUrl;
-    private String detailsUrl;
     private String fileSize; //We are not parsing.
     private String dateAdded; //we are not parsing.
-    private int fileCount;
+    private String hash;
     private int seeds;
     private int peers;
+    private int positiveVotes;
+    private int negativeVotes;
+    private HashMap<String,String> fileNameSizeMap;
 
-    public Torrent(
+    public TorrentInfo (
             String name,
             String magnetUrl,
-            String detailsUrl,
             String fileSize,
-            int fileCount,
             String dateAdded,
+            String hash,
             int seeds,
-            int peers
+            int peers,
+            int positiveVotes,
+            int negativeVotes,
+            HashMap<String,String> fileNameSizeMap
     ) {
         this.name = name;
         this.magnetUrl = magnetUrl;
-        this.detailsUrl = detailsUrl;
         this.fileSize = fileSize;
-        this.fileCount = fileCount;
         this.dateAdded = dateAdded;
+        this.hash = hash;
         this.seeds = seeds;
         this.peers = peers;
+        this.negativeVotes = negativeVotes;
+        this.positiveVotes = positiveVotes;
+        this.fileNameSizeMap = fileNameSizeMap;
     }
 
     public String getName(){return this.name;}
     public String getMagnetUrl() {return this.magnetUrl;}
-    public String getDetailsUrl() {return this.detailsUrl;}
     public String getFileSize() {return this.fileSize;}
     public String getDateAdded() {return this.dateAdded;}
-    public int getFileCount() {return this.fileCount;}
+    public String getHash() {return this.hash;}
     public int getSeeds() {return this.seeds;}
     public int getPeers() {return this.peers;}
+    public int getPositiveVotes() {return this.positiveVotes;}
+    public int getNegativeVotes() {return this.negativeVotes;}
+    public HashMap<String,String> getFileNameSizeMap() {return this.fileNameSizeMap;}
 }
