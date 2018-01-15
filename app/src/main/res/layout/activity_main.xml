@@ -99,7 +99,7 @@
                     android:layout_height="wrap_content"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:text="Page: 2 (24)"
+                    android:text="Page: 0 (0)"
                     android:textColor="@android:color/white"/>
 
                 <ImageView
@@ -136,6 +136,7 @@
                     android:layout_gravity="center"
                     android:src="@drawable/ic_warning"/>
                 <TextView
+                    android:id="@+id/tv_network_error"
                     android:padding="8dp"
                     android:gravity="center"
                     android:layout_width="wrap_content"

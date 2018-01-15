@@ -60,6 +60,7 @@ public class MainActivity extends AppCompatActivity
     private TextView tvLoadingProgress;
 
     private LinearLayout layoutError;
+    private TextView tvNetworkError;
     private Button retryButton;
 
     private CardView layoutPagination;
@@ -91,17 +92,8 @@ public class MainActivity extends AppCompatActivity
         imgPreviousPage = findViewById(R.id.img_page_previous);
 
         layoutError = findViewById(R.id.layout_error);
+        tvNetworkError = findViewById(R.id.tv_network_error);
         retryButton = findViewById(R.id.button_retry);
-        retryButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                layoutError.setVisibility(View.GONE);
-                layoutError.startAnimation(fadeOutAnimation);
-                initPages(UriBuilder.buildUrl(sortOrder).toString(),false);
-                showLoadingProgress("Fetching data...");
-                new DocumentFetcher(MainActivity.this).execute(UriBuilder.buildUrl(sortOrder));
-            }
-        });
 
         //animation
         fadeInAnimation = AnimationUtils.loadAnimation(MainActivity.this,R.anim.fade_in);
@@ -264,6 +256,7 @@ public class MainActivity extends AppCompatActivity
         pages.put(1,page);
     }
 
+    //called after sorting order is changed
     protected void reloadData() {
         if(performingSearch) {
             performSearch(searchQuery);
@@ -291,9 +284,20 @@ public class MainActivity extends AppCompatActivity
     //document fetch error
     @Override
     public void onDocumentFetchError(IOException ioException) {
+        hideLoadingProgress();
         String message = ioException.getMessage();
         if(!isOnline() || message.contains("Handshake") || message.contains("ssl")) {
             if(pages == null || pages.size() == 1) {
+                tvNetworkError.setText(getResources().getString(R.string.network_error));
+                retryButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        layoutError.setVisibility(View.GONE);
+                        layoutError.startAnimation(fadeOutAnimation);
+                        showLoadingProgress("Retrying...");
+                        new DocumentFetcher(MainActivity.this).execute(UriBuilder.buildUrlFromString(currentPage.getPageUrl()));
+                    }
+                });
                 showError();
                 return;
             }
@@ -301,7 +305,30 @@ public class MainActivity extends AppCompatActivity
                 Toast.makeText(MainActivity.this, "Please check your internet connection!", Toast.LENGTH_LONG).show();
         } else
             Toast.makeText(MainActivity.this,message,Toast.LENGTH_LONG).show();
-        hideLoadingProgress();
+
+        //if there's no item displayed on the recyclerview and a network error occurred
+        if(adapter.getItemCount() == 0) {
+            tvNetworkError.setText(message);
+            retryButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    layoutError.setVisibility(View.GONE);
+                    layoutError.startAnimation(fadeOutAnimation);
+                    showLoadingProgress("Retrying...");
+                    new DocumentFetcher(MainActivity.this).execute(
+                            UriBuilder.buildUrlFromString(currentPage.getPageUrl()));
+                }
+            });
+            showError();
+            return;
+        }
+
+        //change currentPage to previous page since a new page was added
+        //but torrent data wasn't fetched due to network error.
+        if(pages.size() > 1) {
+            currentPage = pages.get(currentPage.getPageNumber() - 1);
+            pages.remove(pages.size() - 1);
+        }
     }
 
     @Override
