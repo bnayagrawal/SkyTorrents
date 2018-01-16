@@ -12,6 +12,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -25,7 +26,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import java.io.IOException;
@@ -44,11 +44,23 @@ public class MainActivity extends AppCompatActivity
         TorrentListParser.TorrentListParserListener,
         PopupMenu.OnMenuItemClickListener {
 
+    /*
+     * This variable will be used by recyclerView
+     * to display torrent list. Must be instantiated
+     * only once.
+     */
+    private ArrayList<Torrent> torrents;
+
+    /*
+     * Variables which will hold page information,
+     * next page links, torrent list associated with
+     * page number, the currently displayed page,sort order list etc.
+     */
     private Page currentPage,currentPageTemp;
     private HashMap<Integer,Page> pages,pagesTemp;
-    private HashMap<UriBuilder.SortOrder,Integer> sortOrderMenuIdMap;
-    private ArrayList<Torrent> torrents;
     private HashMap<Integer,String> pageLinks,pageLinksTemp;
+    private HashMap<UriBuilder.SortOrder,Integer> sortOrderMenuIdMap;
+
     private boolean performingSearch = false;
     private String searchQuery = "";
 
@@ -83,6 +95,7 @@ public class MainActivity extends AppCompatActivity
             actionbar.setSubtitle("Displaying Top 1000");
         }
 
+        //Hold reference of views.
         layoutProgress = findViewById(R.id.layout_progress);
         tvLoadingProgress = findViewById(R.id.tv_loading_progress);
 
@@ -102,7 +115,7 @@ public class MainActivity extends AppCompatActivity
         initSortOrderMenuIdMap();
         initializeRecyclerView();
 
-        //start fetching data
+        //start fetching data from https://skytorrents.in/top1000
         showLoadingProgress("Fetching data...");
         new DocumentFetcher(MainActivity.this).execute(UriBuilder.buildUrl(sortOrder));
     }
@@ -117,6 +130,7 @@ public class MainActivity extends AppCompatActivity
         MenuInflater menuInflater = getMenuInflater();
         menuInflater.inflate(R.menu.menu_activity_main,menu);
 
+        //Gets and stores reference of searchView
         SearchView searchView = (SearchView) menu.findItem(R.id.search).getActionView();
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -131,14 +145,17 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
+        //This listener is set to handle when user opens or closes the searchView
         menu.getItem(0).setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
             @Override
             public boolean onMenuItemActionExpand(MenuItem menuItem) {
                 return true;
             }
 
+            //our method of interest.
             @Override
             public boolean onMenuItemActionCollapse(MenuItem menuItem) {
+                //The searchView is collapsed or closed
                 clearSearch();
                 return true;
             }
@@ -151,12 +168,17 @@ public class MainActivity extends AppCompatActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_sort:
+                //When user clicks on the sort button, show popup menu
                 showPopupMenu(findViewById(R.id.action_sort));
                 break;
         }
         return true;
     }
 
+    /**
+     * Shows popup menu anchored to the given view
+     * @param v View to anchor the popup menu
+     */
     public void showPopupMenu(View v) {
         PopupMenu popup = new PopupMenu(this, v);
         MenuInflater inflater = popup.getMenuInflater();
@@ -166,6 +188,7 @@ public class MainActivity extends AppCompatActivity
         popup.show();
     }
 
+    /* when user chose a sort order from the popup menu */
     @Override
     public boolean onMenuItemClick(MenuItem item) {
         switch (item.getItemId()) {
@@ -205,6 +228,11 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
+    /**
+     * Stores sortOrder and menu id of the sortOrder in a hashMap
+     * so we can retrieve menu id for the given sort order using
+     * get(sortOrder) method.
+     */
     protected void initSortOrderMenuIdMap(){
         sortOrderMenuIdMap = new HashMap<>();
         sortOrderMenuIdMap.put(UriBuilder.SortOrder.SORT_SEED_DESC, R.id.menu_sort_by_seeds_desc);
@@ -217,6 +245,9 @@ public class MainActivity extends AppCompatActivity
         sortOrderMenuIdMap.put(UriBuilder.SortOrder.SORT_OLDEST, R.id.menu_sort_by_oldest);
     }
 
+    /**
+     * Initializes recyclerView and pages
+     */
     protected void initializeRecyclerView() {
         initPages(UriBuilder.buildUrl(sortOrder).toString(),true);
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view_torrents);
@@ -225,7 +256,6 @@ public class MainActivity extends AppCompatActivity
                 false);
         adapter = new TRAdapter(MainActivity.this,torrents);
 
-        //TODO: FIX APP CRASH DUE TO SOME ANIMATION
         /* Set Animation (sometimes causing inconsistency errors)*/
         FadeInUpAnimator animator = new FadeInUpAnimator();
         animator.setAddDuration(150);
@@ -238,13 +268,18 @@ public class MainActivity extends AppCompatActivity
         recyclerView.setAdapter(adapter);
     }
 
+    /**
+     * For initializing pages which will hold torrent list
+     * @param url the page url which will be used to retrieve torrent list
+     * @param instantiateTorrents create a new instance of torrents
+     */
     protected void initPages(String url,boolean instantiateTorrents) {
         pages = new HashMap<>();
 
         /*
-        * torrents must be instantiated only once.
-        * Since recyclerAdapter holds the reference of this torrents reference.
-        * if the reference is changed or re-instantiated, recycler wont be able
+        * torrents variable must be instantiated only once.
+        * Since recyclerAdapter holds the reference of this torrents variable.
+        * if the reference is changed or re-instantiated, recyclerView wont be able
         * to update any data since the reference won't be updated there.
         * */
 
@@ -256,91 +291,138 @@ public class MainActivity extends AppCompatActivity
         pages.put(1,page);
     }
 
-    //called after sorting order is changed
+    /**
+     * If the user changes the sorting order
+     * this method is invoked
+     */
     protected void reloadData() {
         if(performingSearch) {
+            /*
+             * If user is performing search then
+             * performSearch again with chosen
+             * sorting order.
+             */
             performSearch(searchQuery);
         }
         else {
+            //Reload pages with user chosen sort order.
             initPages(UriBuilder.buildUrl(sortOrder).toString(),false);
-            showLoadingProgress("Fetching sorted data...");
+            showLoadingProgress("Fetching data...");
             new DocumentFetcher(MainActivity.this).execute(UriBuilder.buildUrl(sortOrder));
         }
     }
 
+    /**
+     * Thanks StackOverflow :)
+     * Checks whether internet connection is available on the device.
+     * @return Returns true if internet connection is available.
+     */
     public boolean isOnline() {
         ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
         return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 
-    //called after document is retrieved from internet
+    /**
+     * Invoked by DocumentFetcher after a given html page
+     * is fetched from given url (of course from skyTorrents server).
+     * @param document document object parsed from html
+     */
     @Override
     public void onDocumentFetchComplete(Document document) {
         showLoadingProgress("Parsing data...");
         (new TorrentListParser(MainActivity.this)).execute(document);
     }
 
-    //document fetch error
+    /**
+     * Invoked by DocumentFetcher if an exception occurs
+     * while fetching document from given url.
+     * @param ioException IOException object
+     */
     @Override
     public void onDocumentFetchError(IOException ioException) {
-        hideLoadingProgress();
         String message = ioException.getMessage();
-        if(!isOnline() || message.contains("Handshake") || message.contains("ssl")) {
-            if(pages == null || pages.size() == 1) {
-                tvNetworkError.setText(getResources().getString(R.string.network_error));
-                retryButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        layoutError.setVisibility(View.GONE);
-                        layoutError.startAnimation(fadeOutAnimation);
-                        showLoadingProgress("Retrying...");
-                        new DocumentFetcher(MainActivity.this).execute(UriBuilder.buildUrlFromString(currentPage.getPageUrl()));
-                    }
-                });
-                showError();
+
+        //Hide the loading progress.
+        hideLoadingProgress();
+
+        //If internet connection is not there and timed out error has not occurred
+        if(!isOnline() && !message.contains("timed out")) {
+            Toast.makeText(MainActivity.this, "Please check your internet connection!", Toast.LENGTH_LONG).show();
+        }
+        else if(message.contains("Handshake") || message.contains("ssl") || message.contains("timed out")) {
+            /*
+             * If handshake error or SSL error occurs
+             * (may occur if website is blocked by the ISP
+             */
+            if(adapter.getItemCount() == 0) {
+                /*
+                 * If there's no item displayed in the recyclerView.
+                 */
+                showError(getResources().getString(R.string.network_error));
+                setRetryButtonClickListener(currentPage.getPageUrl());
                 return;
             }
-            else
-                Toast.makeText(MainActivity.this, "Please check your internet connection!", Toast.LENGTH_LONG).show();
-        } else
+            /*
+             else the user can press the next page button to retry
+             */
+        } else {
+            //If the error has occurred due to some other reason
             Toast.makeText(MainActivity.this,message,Toast.LENGTH_LONG).show();
-
-        //if there's no item displayed on the recyclerview and a network error occurred
-        if(adapter.getItemCount() == 0) {
-            tvNetworkError.setText(message);
-            retryButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    layoutError.setVisibility(View.GONE);
-                    layoutError.startAnimation(fadeOutAnimation);
-                    showLoadingProgress("Retrying...");
-                    new DocumentFetcher(MainActivity.this).execute(
-                            UriBuilder.buildUrlFromString(currentPage.getPageUrl()));
-                }
-            });
-            showError();
-            return;
         }
 
-        //change currentPage to previous page since a new page was added
-        //but torrent data wasn't fetched due to network error.
-        if(pages.size() > 1) {
+        /*
+         * If the user has pressed the next page button, then a new page
+         * was added and the currentPage was changed to the new page
+         * but torrent data wasn't fetched due to network error.
+         */
+        if(currentPage.getPageNumber() > 1) {
+            Toast.makeText(MainActivity.this,"Please try again!",Toast.LENGTH_SHORT).show();
+            //change current page to previous page
             currentPage = pages.get(currentPage.getPageNumber() - 1);
-            pages.remove(pages.size() - 1);
+            //remove the newly added empty page
+            pages.remove(pages.size());
+            //load the previous cached page
+            loadCachedPage(currentPage.getPageNumber());
         }
     }
 
+    /**
+     * Sets onClick listener for retry button
+     * @param url The document to fetch when this button is clicked.
+     */
+    protected void setRetryButtonClickListener(final String url) {
+        retryButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //Hide this layout which displays the error
+                layoutError.setVisibility(View.GONE);
+                layoutError.startAnimation(fadeOutAnimation);
+                showLoadingProgress("Retrying...");
+                new DocumentFetcher(MainActivity.this).execute(
+                        UriBuilder.buildUrlFromString(url));
+            }
+        });
+    }
+
+    /**
+     * Invoked after TorrentListParser class has completed
+     * parsing torrent list and page links from given html document.
+     *
+     * @param torrents contains list torrents parsed from the given html page
+     * @param pageLinks contains page links (1,2,3...n)  parsed from given html page
+     */
     @Override
     public void onTorrentListParseComplete(ArrayList<Torrent> torrents, final HashMap<Integer,String> pageLinks) {
         hideLoadingProgress();
         if(null == torrents) {
+            //If for some reason
             Toast.makeText(MainActivity.this,"Parse error",Toast.LENGTH_SHORT).show();
             return;
         }
 
+        //holds url of all pages (page 1,2,...n)
         this.pageLinks = pageLinks;
-        ArrayList<Torrent> currentPageTorrents = currentPage.getTorrents();
 
         //clear all items from recyclerView
         int size = torrents.size();
@@ -349,7 +431,8 @@ public class MainActivity extends AppCompatActivity
             adapter.notifyItemRangeRemoved(0, size);
         }
 
-        //add items to recyclerView
+        //add torrents to recyclerView and current page.
+        ArrayList<Torrent> currentPageTorrents = currentPage.getTorrents();
         for(Torrent torrent: torrents) {
             currentPageTorrents.add(torrent);
             this.torrents.add(torrent);
@@ -357,63 +440,35 @@ public class MainActivity extends AppCompatActivity
         }
 
         Toast.makeText(MainActivity.this,"Page load completed!",Toast.LENGTH_SHORT).show();
-        tvPagination.setText("Page ".concat(String.valueOf(currentPage.getPageNumber())).concat(" of ").concat(String.valueOf(pageLinks.size())));
 
-        //pagination
-        if(currentPage.getPageNumber() != pageLinks.size()) {
-            //if page number is 1
-            if(currentPage.getPageNumber() == 1) {
-                imgPreviousPage.setColorFilter(
-                        ContextCompat.getColor(MainActivity.this, R.color.buttonDisabled), android.graphics.PorterDuff.Mode.SRC_IN);
-                imgPreviousPage.setOnClickListener(null);
-            } else {
-                imgPreviousPage.setColorFilter(null);
-                imgPreviousPage.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        //load previous page
-                        loadCachedPage(currentPage.getPageNumber() - 1);
-                    }
-                });
-            }
-            //Load next page
-            imgNextPage.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    int pageNumber = currentPage.getPageNumber() + 1;
-                    //if the page is already cached
-                    if(pages.containsKey(pageNumber)) {
-                        loadCachedPage(pageNumber);
-                    } else {
-                        Page page = new Page(pageLinks.get(pageNumber), pageNumber);
-                        currentPage = page;
-                        pages.put(pageNumber,page);
-                        showLoadingProgress("Loading page ".concat(String.valueOf(pageNumber)));
-                        new DocumentFetcher(MainActivity.this).execute(UriBuilder.buildUrlFromString(pageLinks.get(pageNumber)));
-                    }
-                }
-            });
-        } else {
-            //if last page
-            imgNextPage.setColorFilter(
-                    ContextCompat.getColor(MainActivity.this, R.color.buttonDisabled), android.graphics.PorterDuff.Mode.SRC_IN);
-            imgNextPage.setOnClickListener(null);
-        }
+        //update pagination button click listeners
+        setPaginationButtonClickListeners();
+        tvPagination.setText("Page ".concat(String.valueOf(currentPage.getPageNumber())).concat(" of ").concat(String.valueOf(pageLinks.size())));
     }
 
+    /**
+     * Invoked by TorrentListParser class after an
+     * error occurs during parsing torrent list from html
+     * @param message error message
+     */
     @Override
     public void onTorrentListParseError(String message) {
         hideLoadingProgress();
         Toast.makeText(MainActivity.this,message,Toast.LENGTH_LONG).show();
     }
 
+    /**
+     * Loads cached page for the given page number
+     * @param pageNumber page number to load data from.
+     */
     protected void loadCachedPage(int pageNumber) {
+        //If for some reason the given page number is not cached
         if(!pages.containsKey(pageNumber)) {
             Toast.makeText(MainActivity.this,"Error occurred!",Toast.LENGTH_SHORT).show();
             return;
         }
 
-        ArrayList<Torrent> pageTorrents = pages.get(pageNumber).getTorrents();
+        //remove current items from recycler view
         currentPage = pages.get(pageNumber);
         int size = torrents.size();
         if (size > 0) {
@@ -421,52 +476,77 @@ public class MainActivity extends AppCompatActivity
             adapter.notifyItemRangeRemoved(0, size);
         }
 
-        //add items to recyclerView
+        //loads torrent list of given page number to recyclerView
+        ArrayList<Torrent> pageTorrents = pages.get(pageNumber).getTorrents();
         for(Torrent torrent: pageTorrents) {
             this.torrents.add(torrent);
             adapter.notifyItemInserted(torrents.size());
         }
 
-        if(pageNumber == 1) {
+        //update pagination button click listeners
+        setPaginationButtonClickListeners();
+        tvPagination.setText("Page ".concat(String.valueOf(currentPage.getPageNumber())).concat(" of ").concat(String.valueOf(pageLinks.size())));
+    }
+
+    /**
+     * Sets onClick listeners for left and right button of pagination.
+     */
+    protected void setPaginationButtonClickListeners() {
+        int totalPages = pageLinks.size();
+        final int currentPageNumber = currentPage.getPageNumber();
+
+        //for left or previous page button
+        if(1 == currentPageNumber) {
+            //Since we are on the first page, we have to disable this button.
             imgPreviousPage.setColorFilter(
-                    ContextCompat.getColor(MainActivity.this, R.color.buttonDisabled), android.graphics.PorterDuff.Mode.SRC_IN);
+                    ContextCompat.getColor(MainActivity.this, R.color.buttonDisabled),
+                    android.graphics.PorterDuff.Mode.SRC_IN);
             imgPreviousPage.setOnClickListener(null);
         } else {
+            //There are more than one page, so have to enable this button
             imgPreviousPage.setColorFilter(null);
             imgPreviousPage.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    //load previous page
-                    loadCachedPage(currentPage.getPageNumber() - 1);
+                    //load previous cached page as the page will be cached for sure.
+                    loadCachedPage(currentPageNumber - 1);
                 }
             });
         }
-        if(pageNumber != pageLinks.size()) {
+
+        //for right or next page button
+        if(currentPageNumber != totalPages) {
+            //if current page is not the last page.
             imgNextPage.setColorFilter(null);
             imgNextPage.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    int pageNumber = currentPage.getPageNumber() + 1;
+                    int nextPageNumber = currentPage.getPageNumber() + 1;
                     //if the page is already cached
-                    if(pages.containsKey(pageNumber)) {
-                        loadCachedPage(pageNumber);
+                    if(pages.containsKey(nextPageNumber)) {
+                        loadCachedPage(nextPageNumber);
                     } else {
-                        Page page = new Page(pageLinks.get(pageNumber), pageNumber);
+                        //load next page from server.
+                        Page page = new Page(pageLinks.get(nextPageNumber), nextPageNumber);
                         currentPage = page;
-                        pages.put(pageNumber,page);
-                        showLoadingProgress("Loading page ".concat(String.valueOf(pageNumber)));
-                        new DocumentFetcher(MainActivity.this).execute(UriBuilder.buildUrlFromString(pageLinks.get(pageNumber)));
+                        pages.put(nextPageNumber,page);
+                        showLoadingProgress("Loading page ".concat(String.valueOf(nextPageNumber)));
+                        new DocumentFetcher(MainActivity.this).execute(UriBuilder.buildUrlFromString(pageLinks.get(nextPageNumber)));
                     }
                 }
             });
         } else {
+            //if current page is the last page, we have to disable this button
             imgNextPage.setColorFilter(
-                    ContextCompat.getColor(MainActivity.this, R.color.buttonDisabled), android.graphics.PorterDuff.Mode.SRC_IN);
+                    ContextCompat.getColor(MainActivity.this, R.color.buttonDisabled),
+                    android.graphics.PorterDuff.Mode.SRC_IN);
             imgNextPage.setOnClickListener(null);
         }
-        tvPagination.setText("Page ".concat(String.valueOf(currentPage.getPageNumber())).concat(" of ").concat(String.valueOf(pageLinks.size())));
     }
 
+    /**
+     * Hides the loading indicator and shows the pagination
+     */
     protected void hideLoadingProgress() {
         layoutProgress.setVisibility(View.GONE);
         layoutProgress.startAnimation(fadeOutAnimation);
@@ -474,6 +554,9 @@ public class MainActivity extends AppCompatActivity
         layoutPagination.startAnimation(fadeInAnimation);
     }
 
+    /**
+     * Hides pagination and shows loading indicator with a message
+     */
     protected void showLoadingProgress(String message) {
         tvLoadingProgress.setText(message);
         layoutProgress.setVisibility(View.VISIBLE);
@@ -482,7 +565,12 @@ public class MainActivity extends AppCompatActivity
         layoutPagination.startAnimation(fadeOutAnimation);
     }
 
-    protected void showError() {
+    /**
+     * Hides both pagination and loading indicator.
+     * Shows if a network error occurs with a message.
+     */
+    protected void showError(String errorMessage) {
+        tvNetworkError.setText(errorMessage);
         layoutProgress.setVisibility(View.GONE);
         layoutProgress.startAnimation(fadeOutAnimation);
         layoutPagination.setVisibility(View.GONE);
@@ -491,29 +579,65 @@ public class MainActivity extends AppCompatActivity
         layoutError.startAnimation(fadeInAnimation);
     }
 
+    /**
+     * This method is called when user submits search query
+     * @param query search query
+     */
     protected void performSearch(String query) {
+        /*
+         * When user opens searchView and submits the search query
+         * the performingSearch variable contains "false" value,
+         * so we have to store the non-search torrent list in temp
+         * variables. If user queries again when searchView is open
+         * the performingSearch variable will contain "true" and we
+         * don't have to store reference of non-search torrent list
+         * as we have already stored the reference.
+         */
         if(!performingSearch) {
-            //hold torrent data
+            /*
+             * Hold reference of these variables in temp variables
+             * so after user closes the searchView we can load
+             * back the cached pages (non-search torrent list)
+             * from these temp variables
+             */
             currentPageTemp = currentPage;
             pagesTemp = pages;
             pageLinksTemp = pageLinks;
         }
-        //hold torrent search result
+
+        //Since we are performing search
         performingSearch = true;
         searchQuery = query;
+
+        //re-instantiate variables to hold search data
         initPages(UriBuilder.buildQueryUrl(query, sortOrder).toString(),false);
 
+        //perform the search
         showLoadingProgress("Performing search...");
         new DocumentFetcher(MainActivity.this).execute(UriBuilder.buildQueryUrl(query, sortOrder));
     }
 
+    /**
+     * Reload previous torrent list after user closes the searchView
+     */
     protected void clearSearch() {
+        //if we are not performing search
         if(!performingSearch)
             return;
+
+        /*
+         * Restore reference from the temp variables
+         * which holds non-search torrent list.
+         */
         currentPage = currentPageTemp;
         pages = pagesTemp;
         pageLinks = pageLinksTemp;
         performingSearch = false;
-        loadCachedPage(currentPage.getPageNumber());
+
+        //If torrent list empty for the current page (May be due to network error)
+        if(currentPage.getTorrents().size() == 0)
+            new DocumentFetcher(MainActivity.this).execute(UriBuilder.buildUrlFromString(currentPage.getPageUrl()));
+        else
+            loadCachedPage(currentPage.getPageNumber());
     }
 }
