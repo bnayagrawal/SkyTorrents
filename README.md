@@ -9,5 +9,7 @@ Html parsing is done using the library provided by https://jsoup.org/<br/>
 This app makes use of recycler animation made by https://github.com/wasabeef/recyclerview-animators<br/>
 Some of the icons used in this app are download from https://www.flaticon.com/<br/><br/>
 
-Please visit https://skytorrents.in to browse latest popular torrents.
+Visit https://skytorrents.in to browse latest popular torrents.
+
+![Top1000](https://i.imgur.com/7xbqw8H.png) ![Search](https://i.imgur.com/kB1oYzm.png)
 
