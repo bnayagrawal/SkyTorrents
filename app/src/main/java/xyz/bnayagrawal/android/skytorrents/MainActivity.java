@@ -1,8 +1,11 @@
 package xyz.bnayagrawal.android.skytorrents;
 
+import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -175,6 +178,19 @@ public class MainActivity extends AppCompatActivity
             case R.id.action_about:
                 Toast.makeText(MainActivity.this,"Coming soon...",Toast.LENGTH_SHORT).show();
                 break;
+            case R.id.action_visit_skytorrents: {
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setData(Uri.parse("https://skytorrents.in"));
+                try {
+                    startActivity(intent);
+                } catch (ActivityNotFoundException ex) {
+                    Toast.makeText(MainActivity.this,
+                            "Please install a web browser app to open this link!",
+                            Toast.LENGTH_LONG)
+                            .show();
+                }
+                break;
+            }
         }
         return true;
     }
@@ -196,6 +212,20 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onMenuItemClick(MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.menu_sort_by_relevance: {
+                if(!performingSearch) {
+                    item.setChecked(false);
+                    sortOrder = UriBuilder.SortOrder.SORT_SEED_DESC;
+                    Toast.makeText(MainActivity.this,
+                            "Order by relevance is only for searching\nPlease choose a different sort order",
+                            Toast.LENGTH_LONG
+                    ).show();
+                } else {
+                    sortOrder = UriBuilder.SortOrder.SORT_SEED_DESC;
+                    reloadData();
+                }
+            }
+                break;
             case R.id.menu_sort_by_seeds_desc:
                 sortOrder = UriBuilder.SortOrder.SORT_SEED_DESC;
                 reloadData();

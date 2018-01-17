@@ -3,6 +3,10 @@
     <group android:id="@+id/menu_group_sort_by"
         android:checkableBehavior="single">
 
+        <item
+            android:id="@+id/menu_sort_by_relevance"
+            android:title="@string/action_sort_by_relevance"/>
+
         <item android:id="@+id/menu_sort_by_seeds_desc"
             android:checked="true"
             android:title="@string/action_sort_by_seeds_desc"/>

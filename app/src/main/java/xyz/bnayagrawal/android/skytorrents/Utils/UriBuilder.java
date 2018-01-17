@@ -23,6 +23,8 @@ public final class UriBuilder {
     *  ex: data sorted by seeds DESC, url will be https://www.skytorrents.in/top1000/all/ed
     *  ex: data sorted by seeds ASC, url will be https://www.skytorrents.in/top1000/all/ea
     */
+
+    private static final String SORT_RELEVANCE = "ss/";
     private static final String SORT_SEED_DESC = "ed/";
     private static final String SORT_SEED_ASC = "ea/";
     private static final String SORT_PEERS_DESC = "pd/";
@@ -94,6 +96,7 @@ public final class UriBuilder {
     }
 
     public enum SortOrder {
+        SORT_RELEVANCE,
         SORT_SEED_DESC,
         SORT_SEED_ASC,
         SORT_PEERS_DESC,
@@ -107,6 +110,9 @@ public final class UriBuilder {
     private static final String getSortOrder(SortOrder sortOrder) {
         String sort = "ed";
         switch (sortOrder) {
+            case SORT_RELEVANCE:
+                sort = SORT_RELEVANCE;
+                break;
             case SORT_SEED_DESC:
                 sort = SORT_SEED_DESC;
                 break;
