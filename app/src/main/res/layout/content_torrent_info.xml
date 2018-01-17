@@ -1,11 +1,329 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/layoutBackgroundLight"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="xyz.bnayagrawal.android.skytorrents.TorrentInfoActivity"
     tools:showIn="@layout/activity_torrent_info">
 
-</android.support.constraint.ConstraintLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:background="@color/colorPrimary" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbars="none"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <android.support.v7.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="@android:color/white"
+                app:cardCornerRadius="3dp"
+                app:cardUseCompatPadding="true">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="16dp">
+
+                        <ImageView
+                            android:contentDescription="@null"
+                            android:layout_centerVertical="true"
+                            android:id="@+id/img_torrent_info_magnet"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/ic_magnet_36dp"
+                            android:layout_marginEnd="16dp"/>
+
+                        <TextView
+                            android:layout_centerVertical="true"
+                            android:layout_toEndOf="@+id/img_torrent_info_magnet"
+                            android:id="@+id/tv_torrent_info_name"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Kingsman.The.Golden.Circle.2017.FRENCH.BDRip.XviD-GZR"
+                            android:textColor="@color/colorTorrentName"
+                            android:textSize="@dimen/tli_torrent_name_text_size"
+                            android:textStyle="bold" />
+                    </RelativeLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/horizontalLine"/>
+
+                    <TableLayout
+                        android:layout_marginStart="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:stretchColumns="1"
+                        android:shrinkColumns="1">
+
+                        <TableRow
+                            android:layout_marginTop="8dp"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+
+                            <ImageView
+                                android:layout_margin="16dp"
+                                android:layout_column="0"
+                                android:layout_gravity="center_vertical"
+                                android:contentDescription="@null"
+                                android:layout_height="wrap_content"
+                                android:layout_width="wrap_content"
+                                android:tint="@color/colorPrimaryDark"
+                                android:src="@drawable/ic_info_outline_black_24dp"/>
+
+                            <TextView
+                                android:id="@+id/tv_torrent_info_hash"
+                                android:layout_marginStart="8dp"
+                                android:layout_marginEnd="12dp"
+                                android:layout_gravity="center_vertical"
+                                android:layout_column="1"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textSize="14sp"
+                                android:textColor="@color/blackText"
+                                android:text="Hash: 8f4f1c37649d5a6276a3a789b4ae62feeff23d27" />
+                        </TableRow>
+
+                        <TableRow
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp">
+
+                            <View
+                                android:layout_column="1"
+                                android:layout_width="match_parent"
+                                android:layout_height="1dp"
+                                android:background="@color/horizontalLine"/>
+                        </TableRow>
+
+                        <TableRow
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+
+                            <ImageView
+                                android:layout_margin="16dp"
+                                android:layout_column="0"
+                                android:layout_gravity="center_vertical"
+                                android:contentDescription="@null"
+                                android:layout_height="wrap_content"
+                                android:layout_width="wrap_content"
+                                android:tint="@color/colorPrimaryDark"
+                                android:src="@drawable/ic_date_range_black_24dp"/>
+
+                            <TextView
+                                android:id="@+id/tv_torrent_info_added_date"
+                                android:layout_marginStart="8dp"
+                                android:layout_marginEnd="12dp"
+                                android:layout_gravity="center_vertical"
+                                android:layout_column="1"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textSize="14sp"
+                                android:textColor="@color/blackText"
+                                android:text="Uploaded 24 Dec 2017" />
+                        </TableRow>
+
+                        <TableRow
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp">
+
+                            <View
+                                android:layout_column="1"
+                                android:layout_width="match_parent"
+                                android:layout_height="1dp"
+                                android:background="@color/horizontalLine"/>
+                        </TableRow>
+
+                        <TableRow
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+
+                            <ImageView
+                                android:layout_margin="16dp"
+                                android:layout_column="0"
+                                android:layout_gravity="center_vertical"
+                                android:contentDescription="@null"
+                                android:layout_height="wrap_content"
+                                android:layout_width="wrap_content"
+                                android:tint="@color/colorPrimaryDark"
+                                android:src="@drawable/ic_assessment_black_24dp"/>
+
+                            <LinearLayout
+                                android:orientation="horizontal"
+                                android:layout_marginStart="8dp"
+                                android:layout_marginEnd="12dp"
+                                android:layout_gravity="center_vertical"
+                                android:layout_width="match_parent"
+                                android:layout_column="1"
+                                android:layout_height="wrap_content">
+
+                                <TextView
+                                    android:id="@+id/tv_torrent_info_seeds"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="center_vertical"
+                                    android:layout_marginEnd="12dp"
+                                    android:text="Seeds 2176"
+                                    android:textColor="@color/blackText"
+                                    android:textSize="14sp" />
+
+                                <ImageView
+                                    android:contentDescription="@null"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginEnd="12dp"
+                                    android:src="@drawable/ic_arrow_up_18dp" />
+
+                                <TextView
+                                    android:id="@+id/tv_torrent_info_peers"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="center_vertical"
+                                    android:layout_marginEnd="12dp"
+                                    android:text="Peers 981"
+                                    android:textColor="@color/blackText"
+                                    android:textSize="14sp" />
+
+                                <ImageView
+                                    android:contentDescription="@null"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:src="@drawable/ic_arrow_down_18dp" />
+                            </LinearLayout>
+                        </TableRow>
+
+                        <TableRow
+                            android:layout_marginTop="4dp"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+
+                            <View
+                                android:layout_column="1"
+                                android:layout_width="match_parent"
+                                android:layout_height="1dp"
+                                android:background="@color/horizontalLine"/>
+                        </TableRow>
+
+                        <TableRow
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+
+                            <LinearLayout
+                                android:layout_column="1"
+                                android:orientation="horizontal"
+                                android:gravity="end"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content">
+
+                                <Button
+                                    android:id="@+id/btn_copy_magnet_link"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    style="@style/Base.Widget.AppCompat.Button.Borderless"
+                                    android:text="Copy magnet link"/>
+
+                                <Button
+                                    android:id="@+id/btn_open_magnet_link"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    style="@style/Base.Widget.AppCompat.Button.Borderless"
+                                    android:text="OPEN LINK"/>
+                            </LinearLayout>
+                        </TableRow>
+                    </TableLayout>
+                </LinearLayout>
+            </android.support.v7.widget.CardView>
+
+            <android.support.v7.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="8dp"
+                app:cardBackgroundColor="@android:color/white"
+                app:cardCornerRadius="3dp"
+                app:cardUseCompatPadding="true">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="16dp">
+
+                        <ImageView
+                            android:id="@+id/img_file_icon"
+                            android:contentDescription="@null"
+                            android:layout_centerVertical="true"
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:src="@drawable/file"
+                            android:layout_marginEnd="16dp"/>
+
+                        <TextView
+                            android:layout_centerVertical="true"
+                            android:layout_toEndOf="@+id/img_file_icon"
+                            android:id="@+id/tv_torrent_info_files_count"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Torrent Files (4)"
+                            android:textColor="@color/colorTorrentName"
+                            android:textStyle="bold"
+                            android:textSize="@dimen/tli_torrent_name_text_size" />
+                    </RelativeLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/horizontalLine"/>
+
+                    <LinearLayout
+                        android:id="@+id/layout_torrent_files"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingStart="12dp"
+                        android:paddingEnd="12dp"
+                        android:orientation="vertical">
+
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tv_torrent_info_total_files_size"
+                        android:padding="12dp"
+                        android:gravity="end"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:text="Total size: 12.5GB"
+                        android:textColor="@color/blackText"/>
+                </LinearLayout>
+            </android.support.v7.widget.CardView>
+        </LinearLayout>
+    </ScrollView>
+</FrameLayout>
+

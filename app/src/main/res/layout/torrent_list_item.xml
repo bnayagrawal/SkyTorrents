@@ -27,11 +27,12 @@
                 android:layout_gravity="center_vertical">
 
                 <ImageView
+                    android:contentDescription="@null"
                     android:id="@+id/img_magnet_link"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/tli_image_magnet_margin_left"
-                    android:layout_marginRight="@dimen/tli_image_magnet_margin_right"
+                    android:layout_marginStart="@dimen/tli_image_magnet_margin_left"
+                    android:layout_marginEnd="@dimen/tli_image_magnet_margin_right"
                     android:src="@drawable/ic_magnet_36dp" />
             </LinearLayout>
 
@@ -46,7 +47,6 @@
                     android:id="@+id/tv_torrent_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Kingsman.The.Golden.Circle.2017.FRENCH.BDRip.XviD-GZR"
                     android:textColor="@color/colorTorrentName"
                     android:textSize="@dimen/tli_torrent_name_text_size"
                     android:textStyle="bold" />
@@ -57,7 +57,6 @@
                     android:layout_height="wrap_content"
                     android:ellipsize="end"
                     android:maxLines="1"
-                    android:text="Uploaded 22 Dec 2017, 4 Files"
                     android:textColor="@color/secondaryText"
                     android:textSize="@dimen/tli_torrent_desc_text_size"
                     android:textStyle="bold" />
@@ -73,10 +72,11 @@
                         android:layout_height="wrap_content">
 
                         <ImageView
+                            android:contentDescription="@null"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_column="0"
-                            android:layout_marginRight="@dimen/tli_torrent_info_margin_right"
+                            android:layout_marginEnd="@dimen/tli_torrent_info_margin_right"
                             android:src="@drawable/ic_storage_18dp" />
 
                         <TextView
@@ -85,16 +85,16 @@
                             android:layout_height="wrap_content"
                             android:layout_column="1"
                             android:layout_gravity="center_vertical"
-                            android:layout_marginRight="@dimen/tli_torrent_info_margin_right"
-                            android:text="685.2MB"
+                            android:layout_marginEnd="@dimen/tli_torrent_info_margin_right"
                             android:textColor="@color/blackText"
                             android:textSize="@dimen/tli_torrent_info_text_size" />
 
                         <ImageView
+                            android:contentDescription="@null"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_column="2"
-                            android:layout_marginRight="@dimen/tli_torrent_info_margin_right"
+                            android:layout_marginEnd="@dimen/tli_torrent_info_margin_right"
                             android:src="@drawable/ic_arrow_up_18dp" />
 
                         <TextView
@@ -103,16 +103,16 @@
                             android:layout_height="wrap_content"
                             android:layout_column="3"
                             android:layout_gravity="center_vertical"
-                            android:layout_marginRight="@dimen/tli_torrent_info_margin_right"
-                            android:text="388 Seeds"
+                            android:layout_marginEnd="@dimen/tli_torrent_info_margin_right"
                             android:textColor="@color/blackText"
                             android:textSize="@dimen/tli_torrent_info_text_size" />
 
                         <ImageView
+                            android:contentDescription="@null"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_column="4"
-                            android:layout_marginRight="@dimen/tli_torrent_info_margin_right"
+                            android:layout_marginEnd="@dimen/tli_torrent_info_margin_right"
                             android:src="@drawable/ic_arrow_down_18dp" />
 
                         <TextView
@@ -121,8 +121,7 @@
                             android:layout_height="wrap_content"
                             android:layout_column="5"
                             android:layout_gravity="center_vertical"
-                            android:layout_marginRight="@dimen/tli_torrent_info_margin_right"
-                            android:text="488 Peers"
+                            android:layout_marginEnd="@dimen/tli_torrent_info_margin_right"
                             android:textColor="@color/blackText"
                             android:textSize="@dimen/tli_torrent_info_text_size" />
                     </TableRow>

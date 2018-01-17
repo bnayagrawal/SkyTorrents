@@ -131,11 +131,12 @@ public class MainActivity extends AppCompatActivity
         menuInflater.inflate(R.menu.menu_activity_main,menu);
 
         //Gets and stores reference of searchView
-        SearchView searchView = (SearchView) menu.findItem(R.id.search).getActionView();
+        final SearchView searchView = (SearchView) menu.findItem(R.id.search).getActionView();
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 performSearch(query);
+                searchView.clearFocus();
                 return true;
             }
 
@@ -170,6 +171,9 @@ public class MainActivity extends AppCompatActivity
             case R.id.action_sort:
                 //When user clicks on the sort button, show popup menu
                 showPopupMenu(findViewById(R.id.action_sort));
+                break;
+            case R.id.action_about:
+                Toast.makeText(MainActivity.this,"Coming soon...",Toast.LENGTH_SHORT).show();
                 break;
         }
         return true;
