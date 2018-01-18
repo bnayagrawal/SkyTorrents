@@ -269,6 +269,7 @@ public class MainActivity extends AppCompatActivity
      */
     protected void initSortOrderMenuIdMap(){
         sortOrderMenuIdMap = new HashMap<>();
+        sortOrderMenuIdMap.put(UriBuilder.SortOrder.SORT_RELEVANCE,R.id.menu_sort_by_relevance);
         sortOrderMenuIdMap.put(UriBuilder.SortOrder.SORT_SEED_DESC, R.id.menu_sort_by_seeds_desc);
         sortOrderMenuIdMap.put(UriBuilder.SortOrder.SORT_SEED_ASC, R.id.menu_sort_by_seeds_asc);
         sortOrderMenuIdMap.put(UriBuilder.SortOrder.SORT_PEERS_DESC, R.id.menu_sort_by_peers_desc);

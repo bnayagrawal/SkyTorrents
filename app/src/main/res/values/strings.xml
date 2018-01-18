@@ -17,6 +17,10 @@
     <string name="seeds">Seeds</string>
     <string name="peers">Peers</string>
 
+    <!-- layout:content_torrent_info -->
+    <string name="button_open_link">OPEN LINK</string>
+    <string name="button_copy_magnet_link">COPY MAGNET LINK</string>
+
     <!-- Context Menu [sorting] -->
     <string name="action_sort_by_relevance">Relevance</string>
     <string name="action_sort_by_seeds_desc">Seeds DSC</string>
