@@ -18,8 +18,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:textColor="@color/blackText"
-            android:textSize="14sp"
-            android:text="The.Martian.2015.1080p.BluRay.x264-[YTS.AG].mp4"/>
+            android:textSize="14sp"/>
 
         <TextView
             android:id="@+id/tv_torrent_file_item_size"
@@ -27,7 +26,6 @@
             android:padding="12dp"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:text="23.5MB"
             android:textColor="@color/blackText"/>
     </LinearLayout>
 

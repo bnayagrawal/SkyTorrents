@@ -64,6 +64,8 @@ public class MainActivity extends AppCompatActivity
     private HashMap<Integer,String> pageLinks,pageLinksTemp;
     private HashMap<UriBuilder.SortOrder,Integer> sortOrderMenuIdMap;
 
+    private boolean errorViewShown = false;
+    private boolean searchViewExpanded = false;
     private boolean performingSearch = false;
     private String searchQuery = "";
 
@@ -153,14 +155,32 @@ public class MainActivity extends AppCompatActivity
         menu.getItem(0).setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
             @Override
             public boolean onMenuItemActionExpand(MenuItem menuItem) {
+                /*
+                 * If network error was displayed, hide it
+                 * else it will crash the app.
+                 */
+                if(errorViewShown)
+                    hideNetworkError();
+
+                searchViewExpanded = true;
                 return true;
             }
 
-            //our method of interest.
             @Override
             public boolean onMenuItemActionCollapse(MenuItem menuItem) {
                 //The searchView is collapsed or closed
+                searchViewExpanded = false;
+                searchQuery = "";
                 clearSearch();
+
+                /*
+                 * If no item is being displayed in recycler view
+                 * (mostly due to network error) try to reload page.
+                 */
+                if(!errorViewShown && adapter.getItemCount() == 0) {
+                    showLoadingProgress("Refreshing...");
+                    new DocumentFetcher(MainActivity.this).execute(UriBuilder.buildUrlFromString(currentPage.getPageUrl()));
+                }
                 return true;
             }
         });
@@ -213,7 +233,8 @@ public class MainActivity extends AppCompatActivity
     public boolean onMenuItemClick(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_sort_by_relevance: {
-                if(!performingSearch) {
+                //if searchView is not expanded don't allow this sort order
+                if(!searchViewExpanded) {
                     item.setChecked(false);
                     sortOrder = UriBuilder.SortOrder.SORT_SEED_DESC;
                     Toast.makeText(MainActivity.this,
@@ -221,7 +242,7 @@ public class MainActivity extends AppCompatActivity
                             Toast.LENGTH_LONG
                     ).show();
                 } else {
-                    sortOrder = UriBuilder.SortOrder.SORT_SEED_DESC;
+                    sortOrder = UriBuilder.SortOrder.SORT_RELEVANCE;
                     reloadData();
                 }
             }
@@ -331,13 +352,21 @@ public class MainActivity extends AppCompatActivity
      * this method is invoked
      */
     protected void reloadData() {
+        /* if retry button is shown due to network error
+         * or if no item is being displayed in recyclerView
+         */
+        if(errorViewShown || adapter.getItemCount() == 0)
+            return;
+
         if(performingSearch) {
             /*
              * If user is performing search then
              * performSearch again with chosen
-             * sorting order.
+             * sorting order. searchQuery will be empty
+             * if user has expanded searchView.
              */
-            performSearch(searchQuery);
+            if(searchQuery.length() != 0)
+                performSearch(searchQuery);
         }
         else {
             //Reload pages with user chosen sort order.
@@ -394,7 +423,7 @@ public class MainActivity extends AppCompatActivity
                 /*
                  * If there's no item displayed in the recyclerView.
                  */
-                showError(getResources().getString(R.string.network_error));
+                showNetworkError(getResources().getString(R.string.network_error));
                 setRetryButtonClickListener(currentPage.getPageUrl());
                 return;
             }
@@ -431,8 +460,7 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View view) {
                 //Hide this layout which displays the error
-                layoutError.setVisibility(View.GONE);
-                layoutError.startAnimation(fadeOutAnimation);
+                hideNetworkError();
                 showLoadingProgress("Retrying...");
                 new DocumentFetcher(MainActivity.this).execute(
                         UriBuilder.buildUrlFromString(url));
@@ -527,6 +555,7 @@ public class MainActivity extends AppCompatActivity
      * Sets onClick listeners for left and right button of pagination.
      */
     protected void setPaginationButtonClickListeners() {
+
         int totalPages = pageLinks.size();
         final int currentPageNumber = currentPage.getPageNumber();
 
@@ -604,7 +633,8 @@ public class MainActivity extends AppCompatActivity
      * Hides both pagination and loading indicator.
      * Shows if a network error occurs with a message.
      */
-    protected void showError(String errorMessage) {
+    protected void showNetworkError(String errorMessage) {
+        errorViewShown = true;
         tvNetworkError.setText(errorMessage);
         layoutProgress.setVisibility(View.GONE);
         layoutProgress.startAnimation(fadeOutAnimation);
@@ -612,6 +642,15 @@ public class MainActivity extends AppCompatActivity
         layoutPagination.startAnimation(fadeOutAnimation);
         layoutError.setVisibility(View.VISIBLE);
         layoutError.startAnimation(fadeInAnimation);
+    }
+
+    /**
+     * Only hides network error view.
+     */
+    protected void hideNetworkError() {
+        layoutError.setVisibility(View.GONE);
+        layoutError.startAnimation(fadeOutAnimation);
+        errorViewShown = false;
     }
 
     /**
