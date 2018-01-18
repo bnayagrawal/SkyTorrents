@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">SkyTorrents</string>
+    <string name="app_description">Free torrent browser</string>
 
     <!-- layout:activity_main -->
     <string name="title">SkyTorrents.in</string>
@@ -42,4 +43,13 @@
     <!-- menu:activity_torrent_info-->
     <string name="share">share</string>
     <string name="open_in_browser">Open url in browser</string>
+
+    <!-- layout: about -->
+    <string name="dialog_text_source_code"><u>Source code</u></string>
+    <string name="dialog_text_visit_website"><u>My website</u></string>
+    <string name="dialog_desc">
+        All the data shown here is retrieved from skytorrents.in.
+        I dont own any content displayed in this app. Visit there website
+        to browse latest torrents.
+    </string>
 </resources>

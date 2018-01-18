@@ -2,12 +2,16 @@ package xyz.bnayagrawal.android.skytorrents;
 
 import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.CardView;
@@ -196,6 +200,7 @@ public class MainActivity extends AppCompatActivity
                 showPopupMenu(findViewById(R.id.action_sort));
                 break;
             case R.id.action_about:
+                showAboutDialog();
                 Toast.makeText(MainActivity.this,"Coming soon...",Toast.LENGTH_SHORT).show();
                 break;
             case R.id.action_visit_skytorrents: {
@@ -219,7 +224,7 @@ public class MainActivity extends AppCompatActivity
      * Shows popup menu anchored to the given view
      * @param v View to anchor the popup menu
      */
-    public void showPopupMenu(View v) {
+    private void showPopupMenu(View v) {
         PopupMenu popup = new PopupMenu(this, v);
         MenuInflater inflater = popup.getMenuInflater();
         inflater.inflate(R.menu.context_menu_activity_main, popup.getMenu());
@@ -288,7 +293,7 @@ public class MainActivity extends AppCompatActivity
      * so we can retrieve menu id for the given sort order using
      * get(sortOrder) method.
      */
-    protected void initSortOrderMenuIdMap(){
+    private void initSortOrderMenuIdMap(){
         sortOrderMenuIdMap = new HashMap<>();
         sortOrderMenuIdMap.put(UriBuilder.SortOrder.SORT_RELEVANCE,R.id.menu_sort_by_relevance);
         sortOrderMenuIdMap.put(UriBuilder.SortOrder.SORT_SEED_DESC, R.id.menu_sort_by_seeds_desc);
@@ -304,7 +309,7 @@ public class MainActivity extends AppCompatActivity
     /**
      * Initializes recyclerView and pages
      */
-    protected void initializeRecyclerView() {
+    private void initializeRecyclerView() {
         initPages(UriBuilder.buildUrl(sortOrder).toString(),true);
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view_torrents);
         layoutManager = new LinearLayoutManager(MainActivity.this,
@@ -329,7 +334,7 @@ public class MainActivity extends AppCompatActivity
      * @param url the page url which will be used to retrieve torrent list
      * @param instantiateTorrents create a new instance of torrents
      */
-    protected void initPages(String url,boolean instantiateTorrents) {
+    private void initPages(String url,boolean instantiateTorrents) {
         pages = new HashMap<>();
 
         /*
@@ -351,7 +356,7 @@ public class MainActivity extends AppCompatActivity
      * If the user changes the sorting order
      * this method is invoked
      */
-    protected void reloadData() {
+    private void reloadData() {
         /* if retry button is shown due to network error
          * or if no item is being displayed in recyclerView
          */
@@ -381,7 +386,7 @@ public class MainActivity extends AppCompatActivity
      * Checks whether internet connection is available on the device.
      * @return Returns true if internet connection is available.
      */
-    public boolean isOnline() {
+    private boolean isOnline() {
         ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
         return netInfo != null && netInfo.isConnectedOrConnecting();
@@ -433,6 +438,13 @@ public class MainActivity extends AppCompatActivity
         } else {
             //If the error has occurred due to some other reason
             Toast.makeText(MainActivity.this,message,Toast.LENGTH_LONG).show();
+
+            //If recyclerView is not showing any item, show error with retry button
+            if(adapter.getItemCount() == 0) {
+                showNetworkError("Network error!\n" + message);
+                setRetryButtonClickListener(currentPage.getPageUrl());
+                return;
+            }
         }
 
         /*
@@ -455,7 +467,7 @@ public class MainActivity extends AppCompatActivity
      * Sets onClick listener for retry button
      * @param url The document to fetch when this button is clicked.
      */
-    protected void setRetryButtonClickListener(final String url) {
+    private void setRetryButtonClickListener(final String url) {
         retryButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -524,7 +536,7 @@ public class MainActivity extends AppCompatActivity
      * Loads cached page for the given page number
      * @param pageNumber page number to load data from.
      */
-    protected void loadCachedPage(int pageNumber) {
+    private void loadCachedPage(int pageNumber) {
         //If for some reason the given page number is not cached
         if(!pages.containsKey(pageNumber)) {
             Toast.makeText(MainActivity.this,"Error occurred!",Toast.LENGTH_SHORT).show();
@@ -554,7 +566,7 @@ public class MainActivity extends AppCompatActivity
     /**
      * Sets onClick listeners for left and right button of pagination.
      */
-    protected void setPaginationButtonClickListeners() {
+    private void setPaginationButtonClickListeners() {
 
         int totalPages = pageLinks.size();
         final int currentPageNumber = currentPage.getPageNumber();
@@ -611,7 +623,7 @@ public class MainActivity extends AppCompatActivity
     /**
      * Hides the loading indicator and shows the pagination
      */
-    protected void hideLoadingProgress() {
+    private void hideLoadingProgress() {
         layoutProgress.setVisibility(View.GONE);
         layoutProgress.startAnimation(fadeOutAnimation);
         layoutPagination.setVisibility(View.VISIBLE);
@@ -621,7 +633,7 @@ public class MainActivity extends AppCompatActivity
     /**
      * Hides pagination and shows loading indicator with a message
      */
-    protected void showLoadingProgress(String message) {
+    private void showLoadingProgress(String message) {
         tvLoadingProgress.setText(message);
         layoutProgress.setVisibility(View.VISIBLE);
         layoutProgress.startAnimation(fadeInAnimation);
@@ -633,7 +645,7 @@ public class MainActivity extends AppCompatActivity
      * Hides both pagination and loading indicator.
      * Shows if a network error occurs with a message.
      */
-    protected void showNetworkError(String errorMessage) {
+    private void showNetworkError(String errorMessage) {
         errorViewShown = true;
         tvNetworkError.setText(errorMessage);
         layoutProgress.setVisibility(View.GONE);
@@ -647,7 +659,7 @@ public class MainActivity extends AppCompatActivity
     /**
      * Only hides network error view.
      */
-    protected void hideNetworkError() {
+    private void hideNetworkError() {
         layoutError.setVisibility(View.GONE);
         layoutError.startAnimation(fadeOutAnimation);
         errorViewShown = false;
@@ -657,7 +669,7 @@ public class MainActivity extends AppCompatActivity
      * This method is called when user submits search query
      * @param query search query
      */
-    protected void performSearch(String query) {
+    private void performSearch(String query) {
         /*
          * When user opens searchView and submits the search query
          * the performingSearch variable contains "false" value,
@@ -694,7 +706,7 @@ public class MainActivity extends AppCompatActivity
     /**
      * Reload previous torrent list after user closes the searchView
      */
-    protected void clearSearch() {
+    private void clearSearch() {
         //if we are not performing search
         if(!performingSearch)
             return;
@@ -713,5 +725,67 @@ public class MainActivity extends AppCompatActivity
             new DocumentFetcher(MainActivity.this).execute(UriBuilder.buildUrlFromString(currentPage.getPageUrl()));
         else
             loadCachedPage(currentPage.getPageNumber());
+    }
+
+    /**
+     * Shows about dialog.
+     */
+    protected void showAboutDialog() {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+
+        View view = getLayoutInflater().inflate(R.layout.dialog_about,null,false);
+        //set actions
+        (view.findViewById(R.id.tv_dialog_view_source)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                launchUriInent("https://github.com/bnayagrawal/skytorrents");
+            }
+        });
+
+        //set actions
+        (view.findViewById(R.id.tv_dialog_view_website)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                launchUriInent("https://bnayagrawal.xyz");
+            }
+        });
+
+        String appVersion = "Version ";
+        //fetch app version
+        try {
+            PackageInfo pInfo = this.getPackageManager().getPackageInfo(getPackageName(), 0);
+            appVersion = appVersion.concat(pInfo.versionName);
+        } catch (PackageManager.NameNotFoundException e) {
+            appVersion = "Version: 1.0";
+            e.printStackTrace();
+        }
+
+        ((TextView)view.findViewById(R.id.tv_dialog_app_version)).setText(appVersion);
+        builder.setView(view);
+        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+            }
+        });
+
+        AlertDialog aboutDialog = builder.create();
+        aboutDialog.show();
+    }
+
+    /**
+     * initiates action_view intent
+     */
+    private void launchUriInent(String url) {
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(Uri.parse(url));
+        try {
+            startActivity(intent);
+        } catch (ActivityNotFoundException ex) {
+            Toast.makeText(MainActivity.this,
+                    "You may not app which handles magnet url!",
+                    Toast.LENGTH_LONG)
+                    .show();
+        }
     }
 }

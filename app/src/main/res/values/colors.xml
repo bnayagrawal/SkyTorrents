@@ -14,4 +14,6 @@
     <color name="rippleColor">#bdbdbd</color>
     <color name="buttonDisabled">#bdbdbd</color>
     <color name="paginationButton">#ffea00</color>
+
+    <color name="linkTextColor">#0021df</color>
 </resources>
