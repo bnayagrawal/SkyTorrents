@@ -11,5 +11,5 @@ Some of the icons used in this app are download from https://www.flaticon.com/<b
 
 Visit https://skytorrents.in to browse latest popular torrents.
 
-![Top1000](https://i.imgur.com/7xbqw8H.png) ![Search](https://i.imgur.com/kB1oYzm.png)
+![Top1000](https://i.imgur.com/7xbqw8H.png) ![Search](https://i.imgur.com/kB1oYzm.png) ![Torrent Details](https://i.imgur.com/wACIXXA.png)
 
