@@ -1,4 +1,5 @@
-# SkyTorrents
+# SkyTorrents [This app will not show anything as the Skytorrents.in server has shutdown]
+
 The SkyTorrents.in unofficial mobile app.
 
 <b>[All torrent data shown in this application is retrieved from skytorrents.in]</b><br/>
